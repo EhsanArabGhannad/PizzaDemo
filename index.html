@@ -368,6 +368,39 @@
       </form>
     </dialog>
 
+    <dialog class="order-confirmation" aria-labelledby="order-confirmation-title" data-confirmation-dialog>
+      <div class="order-confirmation__panel">
+        <div class="order-confirmation__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="m6.5 12.5 3.5 3.5 7.5-8" /></svg>
+        </div>
+        <p class="eyebrow">Demo complete</p>
+        <h2 id="order-confirmation-title">Thanks, <span data-confirmation-name>pizza fan</span>!</h2>
+        <p class="order-confirmation__intro">Your checkout journey is complete. This is a concept preview, so no real order was placed and no payment was taken.</p>
+
+        <div class="order-confirmation__meta">
+          <span>Demo reference<strong data-confirmation-number>PK-000000</strong></span>
+          <span><span data-confirmation-type-label>Estimated delivery</span><strong data-confirmation-eta>35–50 mins</strong></span>
+        </div>
+
+        <div class="order-confirmation__summary">
+          <div class="order-confirmation__summary-heading">
+            <h3>Order summary</h3>
+            <span data-confirmation-type>Delivery</span>
+          </div>
+          <div class="checkout-order-items" data-confirmation-items></div>
+          <dl>
+            <div><dt>Subtotal</dt><dd data-confirmation-subtotal>£0.00</dd></div>
+            <div><dt>Delivery fee</dt><dd data-confirmation-delivery>£0.00</dd></div>
+            <div><dt>Service fee</dt><dd data-confirmation-service>£0.00</dd></div>
+            <div class="order-confirmation__total"><dt>Demo total</dt><dd data-confirmation-total>£0.00</dd></div>
+          </dl>
+        </div>
+
+        <button class="button button--primary" type="button" data-confirmation-close>Back to the menu</button>
+        <small>No customer details were transmitted or retained.</small>
+      </div>
+    </dialog>
+
     <footer class="site-footer">
       <div class="container site-footer__inner">
         <span class="brand brand--footer"><span class="brand__crest" aria-hidden="true"><img src="assets/images/pizza-knight-logo.png" alt="" width="1254" height="1254" loading="lazy" /></span><span class="brand__wordmark"><strong>Pizza Knight</strong><small>Concept demo</small></span></span>

@@ -43,6 +43,18 @@ const checkoutPreviewDelivery = document.querySelector("[data-checkout-preview-d
 const checkoutPreviewService = document.querySelector("[data-checkout-preview-service]");
 const checkoutPreviewTotal = document.querySelector("[data-checkout-preview-total]");
 const checkoutSubmitTotal = document.querySelector("[data-checkout-submit-total]");
+const confirmationDialog = document.querySelector("[data-confirmation-dialog]");
+const confirmationCloseButton = document.querySelector("[data-confirmation-close]");
+const confirmationName = document.querySelector("[data-confirmation-name]");
+const confirmationNumber = document.querySelector("[data-confirmation-number]");
+const confirmationTypeLabel = document.querySelector("[data-confirmation-type-label]");
+const confirmationEta = document.querySelector("[data-confirmation-eta]");
+const confirmationType = document.querySelector("[data-confirmation-type]");
+const confirmationItems = document.querySelector("[data-confirmation-items]");
+const confirmationSubtotal = document.querySelector("[data-confirmation-subtotal]");
+const confirmationDelivery = document.querySelector("[data-confirmation-delivery]");
+const confirmationService = document.querySelector("[data-confirmation-service]");
+const confirmationTotal = document.querySelector("[data-confirmation-total]");
 const feeInfoButton = document.querySelector("[data-fee-info]");
 const contactForm = document.querySelector("[data-contact-form]");
 
@@ -63,6 +75,7 @@ let selectedQuantity = 1;
 let lastCustomizerTrigger;
 let cartItems = [];
 let orderType = "delivery";
+let checkoutIsCompleting = false;
 
 if (yearElement) yearElement.textContent = new Date().getFullYear();
 
@@ -80,6 +93,10 @@ navigation?.addEventListener("click", (event) => {
 });
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
+    if (confirmationDialog?.open) {
+      closeConfirmation();
+      return;
+    }
     if (checkoutDialog?.open) {
       closeCheckout();
       return;
@@ -170,7 +187,10 @@ function showToast(message) {
 }
 
 function syncModalState() {
-  document.body.classList.toggle("modal-is-open", Boolean(customizer?.open || basket?.open || checkoutDialog?.open));
+  document.body.classList.toggle(
+    "modal-is-open",
+    Boolean(customizer?.open || basket?.open || checkoutDialog?.open || confirmationDialog?.open),
+  );
 }
 
 function escapeHtml(value) {
@@ -372,6 +392,29 @@ function closeCheckout() {
   if (checkoutDialog?.open) checkoutDialog.close();
 }
 
+function createDemoOrderReference() {
+  return `PK-${String(Date.now()).slice(-6)}`;
+}
+
+function renderConfirmation({ customerName, items, type, totals }) {
+  const isDelivery = type === "delivery";
+
+  if (confirmationName) confirmationName.textContent = customerName || "pizza fan";
+  if (confirmationNumber) confirmationNumber.textContent = createDemoOrderReference();
+  if (confirmationTypeLabel) confirmationTypeLabel.textContent = isDelivery ? "Estimated delivery" : "Ready to collect";
+  if (confirmationEta) confirmationEta.textContent = isDelivery ? "35–50 mins" : "20–30 mins";
+  if (confirmationType) confirmationType.textContent = isDelivery ? "Delivery" : "Collection";
+  if (confirmationItems) confirmationItems.innerHTML = items.map(checkoutItemTemplate).join("");
+  if (confirmationSubtotal) confirmationSubtotal.textContent = currencyFormatter.format(totals.subtotal);
+  if (confirmationDelivery) confirmationDelivery.textContent = totals.deliveryFee ? currencyFormatter.format(totals.deliveryFee) : "Free";
+  if (confirmationService) confirmationService.textContent = currencyFormatter.format(totals.serviceFee);
+  if (confirmationTotal) confirmationTotal.textContent = currencyFormatter.format(totals.total);
+}
+
+function closeConfirmation() {
+  if (confirmationDialog?.open) confirmationDialog.close();
+}
+
 function calculateCustomisedPrice() {
   if (!selectedProduct || !customizerForm) return 0;
 
@@ -557,16 +600,46 @@ checkoutDialog?.addEventListener("click", (event) => {
 checkoutDialog?.addEventListener("close", () => {
   checkoutForm?.reset();
   syncModalState();
-  [...basketOpenButtons].find((button) => button.getClientRects().length > 0)?.focus();
+  if (checkoutIsCompleting) {
+    checkoutIsCompleting = false;
+  } else {
+    [...basketOpenButtons].find((button) => button.getClientRects().length > 0)?.focus();
+  }
 });
 
 checkoutDialog?.addEventListener("cancel", syncModalState);
 
 checkoutForm?.addEventListener("submit", (event) => {
   event.preventDefault();
-  showToast("Demo complete — no order was placed and no payment was taken.");
+
+  const customerName = checkoutForm.elements.namedItem("checkout-name")?.value.trim().split(/\s+/)[0];
+  const confirmationData = {
+    customerName,
+    items: cartItems.map((item) => ({ ...item })),
+    type: orderType,
+    totals: getBasketTotals(),
+  };
+
+  renderConfirmation(confirmationData);
+  checkoutIsCompleting = true;
   closeCheckout();
+  cartItems = [];
+  renderBasket();
+  confirmationDialog?.showModal();
+  syncModalState();
 });
+
+confirmationCloseButton?.addEventListener("click", () => {
+  closeConfirmation();
+  document.querySelector("#menu")?.scrollIntoView({ behavior: "smooth" });
+});
+
+confirmationDialog?.addEventListener("click", (event) => {
+  if (event.target === confirmationDialog) closeConfirmation();
+});
+
+confirmationDialog?.addEventListener("close", syncModalState);
+confirmationDialog?.addEventListener("cancel", syncModalState);
 
 contactForm?.addEventListener("submit", (event) => {
   event.preventDefault();
