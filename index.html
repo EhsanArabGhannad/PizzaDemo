@@ -303,6 +303,71 @@
       </div>
     </dialog>
 
+    <dialog class="checkout-preview" aria-labelledby="checkout-preview-title" data-checkout-dialog>
+      <form class="checkout-preview__panel" data-checkout-form>
+        <header class="checkout-preview__header">
+          <div><p class="eyebrow">Final step</p><h2 id="checkout-preview-title">Demo checkout</h2></div>
+          <button class="customizer__close" type="button" aria-label="Close checkout" data-checkout-close>
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18" /></svg>
+          </button>
+        </header>
+
+        <div class="checkout-preview__content">
+          <div class="checkout-demo-note">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3 4 6v5c0 5.2 3.4 8.4 8 10 4.6-1.6 8-4.8 8-10V6l-8-3Zm-3 9 2 2 4-5" /></svg>
+            <p><strong>Safe concept preview</strong><span>No details leave this browser and no payment is taken.</span></p>
+          </div>
+
+          <div class="checkout-preview__layout">
+            <div class="checkout-preview__fields">
+              <fieldset class="checkout-group">
+                <legend>Contact details</legend>
+                <div class="checkout-form__row">
+                  <label class="form-field"><span>Name</span><input type="text" name="checkout-name" autocomplete="name" required /></label>
+                  <label class="form-field"><span>Email</span><input type="email" name="checkout-email" autocomplete="email" required /></label>
+                </div>
+              </fieldset>
+
+              <fieldset class="checkout-group" data-checkout-delivery>
+                <legend>Delivery details</legend>
+                <div class="checkout-form__row">
+                  <label class="form-field"><span>Postcode</span><input type="text" name="checkout-postcode" autocomplete="postal-code" /></label>
+                  <label class="form-field"><span>Address line</span><input type="text" name="checkout-address" autocomplete="street-address" /></label>
+                </div>
+                <p>Demo coverage is shown as Consett; no postcode lookup is performed.</p>
+              </fieldset>
+
+              <div class="checkout-collection-card" data-checkout-collection hidden>
+                <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 10h16l-1 10H5L4 10Zm3-4a5 5 0 0 1 10 0v4H7V6Z" /></svg>
+                <div><strong>Collection selected</strong><span>Your demo order would be ready in approximately 20–30 minutes.</span></div>
+              </div>
+
+              <div class="checkout-payment-note">
+                <span aria-hidden="true">🔒</span>
+                <div><strong>Payment disabled</strong><p>A production checkout would connect to a secure payment provider here.</p></div>
+              </div>
+            </div>
+
+            <aside class="checkout-order-summary" aria-label="Checkout order summary">
+              <div class="checkout-order-summary__heading"><h3>Your order</h3><span data-checkout-preview-type>Delivery</span></div>
+              <div class="checkout-order-items" data-checkout-preview-items></div>
+              <dl>
+                <div><dt>Subtotal</dt><dd data-checkout-preview-subtotal>£0.00</dd></div>
+                <div><dt>Delivery fee</dt><dd data-checkout-preview-delivery>£0.00</dd></div>
+                <div><dt>Service fee</dt><dd data-checkout-preview-service>£0.00</dd></div>
+                <div class="checkout-order-summary__total"><dt>Total</dt><dd data-checkout-preview-total>£0.00</dd></div>
+              </dl>
+            </aside>
+          </div>
+        </div>
+
+        <footer class="checkout-preview__footer">
+          <p>Completing this step will not place an order.</p>
+          <button class="button button--primary" type="submit">Finish demo checkout <strong data-checkout-submit-total>£0.00</strong></button>
+        </footer>
+      </form>
+    </dialog>
+
     <footer class="site-footer">
       <div class="container site-footer__inner">
         <span class="brand brand--footer"><span class="brand__crest" aria-hidden="true"><img src="assets/images/pizza-knight-logo.png" alt="" width="1254" height="1254" loading="lazy" /></span><span class="brand__wordmark"><strong>Pizza Knight</strong><small>Concept demo</small></span></span>

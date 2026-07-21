@@ -31,6 +31,18 @@ const basketNote = document.querySelector("[data-basket-note]");
 const basketClearButton = document.querySelector("[data-basket-clear]");
 const checkoutButton = document.querySelector("[data-checkout]");
 const checkoutTotal = document.querySelector("[data-checkout-total]");
+const checkoutDialog = document.querySelector("[data-checkout-dialog]");
+const checkoutForm = document.querySelector("[data-checkout-form]");
+const checkoutCloseButton = document.querySelector("[data-checkout-close]");
+const checkoutDeliveryFields = document.querySelector("[data-checkout-delivery]");
+const checkoutCollectionInfo = document.querySelector("[data-checkout-collection]");
+const checkoutPreviewItems = document.querySelector("[data-checkout-preview-items]");
+const checkoutPreviewType = document.querySelector("[data-checkout-preview-type]");
+const checkoutPreviewSubtotal = document.querySelector("[data-checkout-preview-subtotal]");
+const checkoutPreviewDelivery = document.querySelector("[data-checkout-preview-delivery]");
+const checkoutPreviewService = document.querySelector("[data-checkout-preview-service]");
+const checkoutPreviewTotal = document.querySelector("[data-checkout-preview-total]");
+const checkoutSubmitTotal = document.querySelector("[data-checkout-submit-total]");
 const feeInfoButton = document.querySelector("[data-fee-info]");
 const contactForm = document.querySelector("[data-contact-form]");
 
@@ -68,6 +80,10 @@ navigation?.addEventListener("click", (event) => {
 });
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
+    if (checkoutDialog?.open) {
+      closeCheckout();
+      return;
+    }
     if (customizer?.open) {
       closeCustomizer();
       return;
@@ -154,7 +170,7 @@ function showToast(message) {
 }
 
 function syncModalState() {
-  document.body.classList.toggle("modal-is-open", Boolean(customizer?.open || basket?.open));
+  document.body.classList.toggle("modal-is-open", Boolean(customizer?.open || basket?.open || checkoutDialog?.open));
 }
 
 function escapeHtml(value) {
@@ -210,6 +226,23 @@ function persistBasketState() {
   }
 }
 
+function getBasketTotals() {
+  const itemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+  const subtotal = cartItems.reduce((total, item) => total + item.unitPrice * item.quantity, 0);
+  const hasItems = itemCount > 0;
+  const serviceFee = hasItems ? SERVICE_FEE : 0;
+  const deliveryFee = hasItems && orderType === "delivery" ? DELIVERY_FEE : 0;
+
+  return {
+    itemCount,
+    subtotal,
+    hasItems,
+    serviceFee,
+    deliveryFee,
+    total: subtotal + serviceFee + deliveryFee,
+  };
+}
+
 function basketItemTemplate(item) {
   return `
     <article class="basket-item" data-basket-item="${escapeHtml(item.key)}">
@@ -233,12 +266,7 @@ function basketItemTemplate(item) {
 }
 
 function renderBasket() {
-  const itemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
-  const subtotal = cartItems.reduce((total, item) => total + item.unitPrice * item.quantity, 0);
-  const hasItems = itemCount > 0;
-  const serviceFee = hasItems ? SERVICE_FEE : 0;
-  const deliveryFee = hasItems && orderType === "delivery" ? DELIVERY_FEE : 0;
-  const total = subtotal + serviceFee + deliveryFee;
+  const { itemCount, subtotal, hasItems, serviceFee, deliveryFee, total } = getBasketTotals();
 
   cartCountElements.forEach((element) => {
     element.textContent = String(itemCount);
@@ -300,6 +328,48 @@ function openBasket() {
 
 function closeBasket() {
   if (basket?.open) basket.close();
+}
+
+function checkoutItemTemplate(item) {
+  return `
+    <div class="checkout-order-item">
+      <strong>${item.quantity} &times; ${escapeHtml(item.name)}</strong>
+      <span>${currencyFormatter.format(item.unitPrice * item.quantity)}</span>
+      <small>${escapeHtml(item.details || "Standard serving")}</small>
+    </div>`;
+}
+
+function renderCheckout() {
+  const { subtotal, serviceFee, deliveryFee, total } = getBasketTotals();
+  const isDelivery = orderType === "delivery";
+
+  if (checkoutPreviewItems) checkoutPreviewItems.innerHTML = cartItems.map(checkoutItemTemplate).join("");
+  if (checkoutPreviewType) checkoutPreviewType.textContent = isDelivery ? "Delivery" : "Collection";
+  if (checkoutPreviewSubtotal) checkoutPreviewSubtotal.textContent = currencyFormatter.format(subtotal);
+  if (checkoutPreviewDelivery) checkoutPreviewDelivery.textContent = deliveryFee ? currencyFormatter.format(deliveryFee) : "Free";
+  if (checkoutPreviewService) checkoutPreviewService.textContent = currencyFormatter.format(serviceFee);
+  if (checkoutPreviewTotal) checkoutPreviewTotal.textContent = currencyFormatter.format(total);
+  if (checkoutSubmitTotal) checkoutSubmitTotal.textContent = currencyFormatter.format(total);
+  if (checkoutDeliveryFields) {
+    checkoutDeliveryFields.hidden = !isDelivery;
+    checkoutDeliveryFields.querySelectorAll("input").forEach((input) => {
+      input.required = isDelivery;
+    });
+  }
+  if (checkoutCollectionInfo) checkoutCollectionInfo.hidden = isDelivery;
+}
+
+function openCheckout() {
+  if (!checkoutDialog || !getBasketTotals().hasItems) return;
+
+  renderCheckout();
+  closeBasket();
+  checkoutDialog.showModal();
+  syncModalState();
+}
+
+function closeCheckout() {
+  if (checkoutDialog?.open) checkoutDialog.close();
 }
 
 function calculateCustomisedPrice() {
@@ -476,8 +546,26 @@ basketClearButton?.addEventListener("click", () => {
   basketBrowseButton?.focus();
 });
 
-checkoutButton?.addEventListener("click", () => {
-  showToast("Demo only — checkout and payment will be added in the next step.");
+checkoutButton?.addEventListener("click", openCheckout);
+
+checkoutCloseButton?.addEventListener("click", closeCheckout);
+
+checkoutDialog?.addEventListener("click", (event) => {
+  if (event.target === checkoutDialog) closeCheckout();
+});
+
+checkoutDialog?.addEventListener("close", () => {
+  checkoutForm?.reset();
+  syncModalState();
+  [...basketOpenButtons].find((button) => button.getClientRects().length > 0)?.focus();
+});
+
+checkoutDialog?.addEventListener("cancel", syncModalState);
+
+checkoutForm?.addEventListener("submit", (event) => {
+  event.preventDefault();
+  showToast("Demo complete — no order was placed and no payment was taken.");
+  closeCheckout();
 });
 
 contactForm?.addEventListener("submit", (event) => {
