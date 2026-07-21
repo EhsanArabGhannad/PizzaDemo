@@ -1,0 +1,9 @@
+{
+  "name": "pizza-knight-demo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Responsive front-end demonstration for Pizza Knight.",
+  "scripts": {
+    "start": "node server.mjs"
+  }
+}
