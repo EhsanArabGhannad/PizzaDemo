@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ehsanarabghannad.github.io/PizzaDemo/sitemap.xml
