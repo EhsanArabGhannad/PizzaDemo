@@ -1,0 +1,70 @@
+@model ProductOptionsViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = $"Options for {Model.Product.Name}";
+    var product = Model.Product;
+}
+
+<div class="admin-container admin-container--narrow">
+    <a class="back-link" asp-action="Index"><span aria-hidden="true">←</span> Back to menu</a>
+    <header class="page-heading options-heading">
+        <div>
+            <p class="admin-eyebrow">Product customisation</p>
+            <h1>@product.Name</h1>
+            <p>Build the choice groups shown to customers. Required groups must contain at least one available option.</p>
+        </div>
+        <a class="admin-button admin-button--primary" asp-action="CreateGroup" asp-route-productId="@product.Id">Add option group</a>
+    </header>
+
+    @if (TempData["Success"] is string success)
+    {
+        <div class="admin-alert admin-alert--success" role="status">@success</div>
+    }
+
+    @if (product.OptionGroups.Count == 0)
+    {
+        <section class="orders-panel admin-empty"><span aria-hidden="true">♞</span><h2>No option groups yet</h2><p>Add a group such as Size, Crust or Extras.</p></section>
+    }
+    else
+    {
+        <div class="option-group-list">
+            @foreach (var group in product.OptionGroups)
+            {
+                <section class="admin-option-group">
+                    <header>
+                        <div><h2>@group.Name</h2><p>/@group.Slug · Choose @group.MinimumSelections–@group.MaximumSelections · @(group.IsRequired ? "Required" : "Optional")</p></div>
+                        <div class="compact-actions">
+                            <a asp-action="CreateOption" asp-route-groupId="@group.Id">Add option</a>
+                            <a asp-action="EditGroup" asp-route-id="@group.Id">Edit group</a>
+                            <form asp-action="DeleteGroup" asp-route-id="@group.Id" method="post" data-confirm="Remove this option group and every option inside it?">
+                                <button class="danger-action" type="submit">Delete</button>
+                            </form>
+                        </div>
+                    </header>
+                    @if (group.Options.Count == 0)
+                    {
+                        <div class="option-empty">No choices in this group yet.</div>
+                    }
+                    else
+                    {
+                        <div class="option-list">
+                            @foreach (var option in group.Options)
+                            {
+                                <article class="@(option.IsAvailable ? null : "is-muted")">
+                                    <div><strong>@option.Name</strong><small>@(option.Description ?? "No description") · /@option.Slug · Order @option.DisplayOrder</small></div>
+                                    <span>@(option.PriceAdjustmentPence == 0 ? "Included" : $"+£{option.PriceAdjustmentPence / 100m:0.00}")</span>
+                                    <span class="availability-pill @(option.IsAvailable ? "is-available" : "is-unavailable")">@(option.IsAvailable ? "Available" : "Unavailable")</span>
+                                    <div class="compact-actions">
+                                        <a asp-action="EditOption" asp-route-id="@option.Id">Edit</a>
+                                        <form asp-action="ToggleOption" asp-route-id="@option.Id" method="post"><button type="submit">@(option.IsAvailable ? "Disable" : "Enable")</button></form>
+                                        <form asp-action="DeleteOption" asp-route-id="@option.Id" method="post" data-confirm="Remove this option permanently?"><button class="danger-action" type="submit">Delete</button></form>
+                                    </div>
+                                </article>
+                            }
+                        </div>
+                    }
+                </section>
+            }
+        </div>
+    }
+</div>

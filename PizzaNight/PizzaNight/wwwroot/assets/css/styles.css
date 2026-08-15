@@ -295,6 +295,7 @@ h1 em { color: var(--accent); font-weight: inherit; }
   background: var(--success);
   box-shadow: 0 0 0 0.3rem rgb(79 192 120 / 14%);
 }
+.hero-fact.is-closed .hero-fact__status { background: #d64d4d; box-shadow: 0 0 0 .32rem rgb(214 77 77 / 15%); }
 .hero-fact span:not(.hero-fact__status) { display: grid; line-height: 1.25; }
 .hero-fact small { color: rgb(255 255 255 / 48%); font-size: 0.68rem; }
 .hero-fact strong { font-size: 0.86rem; }
@@ -733,6 +734,8 @@ h1 em { color: var(--accent); font-weight: inherit; }
   font-size: 0.7rem;
 }
 .option-group legend small { margin-left: auto; color: var(--muted); font-size: 0.62rem; font-weight: 650; }
+.option-group__hint { margin: 0.65rem 0 0; color: var(--muted); font-size: 0.78rem; }
+.customizer-options-empty { margin: 0; padding: 2rem; border: 1px dashed var(--border); border-radius: var(--radius-md); color: var(--muted); text-align: center; }
 .option-grid { display: grid; gap: 0.55rem; }
 .choice-card {
   min-width: 0;

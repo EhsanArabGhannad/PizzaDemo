@@ -2,6 +2,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using PizzaNight.Contracts;
 using PizzaNight.Data;
+using PizzaNight.Models;
 using PizzaNight.Services;
 using Xunit;
 
@@ -85,6 +86,69 @@ public sealed class OrderSubmissionServiceTests
         Assert.Equal(0, await fixture.Context.Orders.CountAsync());
     }
 
+    [Fact]
+    public async Task Delivery_below_the_configured_minimum_is_rejected()
+    {
+        await using var fixture = await TestDatabase.CreateAsync();
+        var request = CreateRequest("delivery",
+            new CreateOrderItemRequest
+            {
+                ProductId = "margherita",
+                Quantity = 1,
+                Selections = new()
+                {
+                    ["size"] = ["small"],
+                    ["crust"] = ["classic"],
+                    ["extras"] = []
+                }
+            });
+
+        var result = await fixture.Service.SubmitAsync(request, CancellationToken.None);
+
+        Assert.False(result.IsSuccess);
+        Assert.Contains(result.Errors, error => error.Contains("minimum food subtotal", StringComparison.OrdinalIgnoreCase));
+        Assert.Equal(0, await fixture.Context.Orders.CountAsync());
+    }
+
+    [Fact]
+    public async Task Delivery_outside_an_active_postcode_prefix_is_rejected()
+    {
+        await using var fixture = await TestDatabase.CreateAsync();
+        var request = new CreateOrderRequest
+        {
+            CustomerName = "Automated Test",
+            CustomerEmail = "test@example.com",
+            CustomerPhone = "07123456789",
+            OrderType = "delivery",
+            Postcode = "NE1 1AA",
+            AddressLine = "1 Test Street",
+            Items = [new CreateOrderItemRequest { ProductId = "family-feast", Quantity = 1 }]
+        };
+
+        var result = await fixture.Service.SubmitAsync(request, CancellationToken.None);
+
+        Assert.False(result.IsSuccess);
+        Assert.Contains(result.Errors, error => error.Contains("postcode", StringComparison.OrdinalIgnoreCase));
+        Assert.Equal(0, await fixture.Context.Orders.CountAsync());
+    }
+
+    [Fact]
+    public async Task Manual_closure_blocks_new_orders_with_the_shop_message()
+    {
+        await using var fixture = await TestDatabase.CreateAsync();
+        var settings = await fixture.Context.ShopSettings.SingleAsync();
+        settings.AcceptingOnlineOrders = false;
+        settings.TemporaryClosureMessage = "Kitchen is fully booked tonight.";
+        await fixture.Context.SaveChangesAsync();
+
+        var result = await fixture.Service.SubmitAsync(
+            CreateRequest("collection", new CreateOrderItemRequest { ProductId = "family-feast", Quantity = 1 }),
+            CancellationToken.None);
+
+        Assert.False(result.IsSuccess);
+        Assert.Contains("Kitchen is fully booked tonight.", result.Errors);
+    }
+
     private static CreateOrderRequest CreateRequest(string orderType, params CreateOrderItemRequest[] items) => new()
     {
         CustomerName = "Automated Test",
@@ -104,7 +168,8 @@ public sealed class OrderSubmissionServiceTests
         {
             this.connection = connection;
             Context = context;
-            Service = new OrderSubmissionService(context);
+            var operations = new ShopOperationsService(context, TimeProvider.System);
+            Service = new OrderSubmissionService(context, operations);
         }
 
         public PizzaNightDbContext Context { get; }

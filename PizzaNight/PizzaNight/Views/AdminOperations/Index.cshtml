@@ -1,0 +1,154 @@
+@model AdminOperationsViewModel
+@{
+    ViewData["Title"] = "Shop settings";
+    Layout = "_AdminLayout";
+}
+
+<div class="admin-container admin-container--narrow">
+    <header class="page-heading">
+        <div>
+            <p class="admin-eyebrow">Operations</p>
+            <h1>Shop settings</h1>
+            <p>Control when orders are accepted, delivery pricing, estimates and postcode coverage.</p>
+        </div>
+    </header>
+
+    @if (TempData["Success"] is string success)
+    {
+        <div class="admin-alert admin-alert--success" role="status">@success</div>
+    }
+
+    <form method="post" class="operations-layout">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="form-errors"></div>
+
+        <section class="editor-card operations-card">
+            <div class="detail-card__heading">
+                <div>
+                    <h2>Online ordering</h2>
+                    <span>The master switch always takes priority over the weekly schedule.</span>
+                </div>
+            </div>
+            <div class="switch-stack">
+                <label class="switch-field">
+                    <input asp-for="Settings.AcceptingOnlineOrders" />
+                    <span><strong>Accept online orders</strong><small>Turn this off immediately when the kitchen cannot take more orders.</small></span>
+                </label>
+                <label class="switch-field">
+                    <input asp-for="Settings.UseOpeningHours" />
+                    <span><strong>Enforce weekly opening hours</strong><small>Orders outside the times below will be blocked automatically.</small></span>
+                </label>
+            </div>
+            <div class="editor-grid">
+                <label class="editor-field editor-field--wide">
+                    <span>Temporary closure message <small>optional</small></span>
+                    <input asp-for="Settings.TemporaryClosureMessage" placeholder="For example: Fully booked tonight — back tomorrow." />
+                    <em asp-validation-for="Settings.TemporaryClosureMessage"></em>
+                </label>
+            </div>
+        </section>
+
+        <section class="editor-card operations-card">
+            <div class="detail-card__heading">
+                <div>
+                    <h2>Pricing and estimates</h2>
+                    <span>These values are used by both the basket and the secure order API.</span>
+                </div>
+            </div>
+            <div class="editor-grid operations-price-grid">
+                <label class="editor-field">
+                    <span>Delivery minimum (£)</span>
+                    <input asp-for="Settings.DeliveryMinimum" type="number" min="0" max="999.99" step="0.01" />
+                    <em asp-validation-for="Settings.DeliveryMinimum"></em>
+                </label>
+                <label class="editor-field">
+                    <span>Delivery fee (£)</span>
+                    <input asp-for="Settings.DeliveryFee" type="number" min="0" max="99.99" step="0.01" />
+                    <em asp-validation-for="Settings.DeliveryFee"></em>
+                </label>
+                <label class="editor-field">
+                    <span>Service fee (£)</span>
+                    <input asp-for="Settings.ServiceFee" type="number" min="0" max="99.99" step="0.01" />
+                    <em asp-validation-for="Settings.ServiceFee"></em>
+                </label>
+                <div class="editor-field estimate-fields">
+                    <span>Delivery estimate (minutes)</span>
+                    <div><input asp-for="Settings.DeliveryEtaMinMinutes" type="number" min="5" max="240" /><span>to</span><input asp-for="Settings.DeliveryEtaMaxMinutes" type="number" min="5" max="240" /></div>
+                    <em asp-validation-for="Settings.DeliveryEtaMinMinutes"></em>
+                    <em asp-validation-for="Settings.DeliveryEtaMaxMinutes"></em>
+                </div>
+                <div class="editor-field estimate-fields">
+                    <span>Collection estimate (minutes)</span>
+                    <div><input asp-for="Settings.CollectionEtaMinMinutes" type="number" min="5" max="240" /><span>to</span><input asp-for="Settings.CollectionEtaMaxMinutes" type="number" min="5" max="240" /></div>
+                    <em asp-validation-for="Settings.CollectionEtaMinMinutes"></em>
+                    <em asp-validation-for="Settings.CollectionEtaMaxMinutes"></em>
+                </div>
+            </div>
+        </section>
+
+        <section class="editor-card operations-card">
+            <div class="detail-card__heading">
+                <div>
+                    <h2>Weekly opening hours</h2>
+                    <span>Closing after midnight is supported, for example 17:00 to 01:00.</span>
+                </div>
+            </div>
+            <div class="opening-hours-list">
+                @for (var index = 0; index < Model.Hours.Count; index++)
+                {
+                    <div class="opening-hours-row">
+                        <input asp-for="Hours[index].DayOfWeek" type="hidden" />
+                        <strong>@Model.Hours[index].DayOfWeek</strong>
+                        <label class="closed-check"><input asp-for="Hours[index].IsClosed" /><span>Closed</span></label>
+                        <label><span>Open</span><input asp-for="Hours[index].OpensAt" type="time" /></label>
+                        <label><span>Close</span><input asp-for="Hours[index].ClosesAt" type="time" /></label>
+                        <div class="opening-errors">
+                            <em asp-validation-for="Hours[index].OpensAt"></em>
+                            <em asp-validation-for="Hours[index].ClosesAt"></em>
+                        </div>
+                    </div>
+                }
+            </div>
+        </section>
+
+        <div class="operations-save-bar">
+            <p>Changes affect new baskets and orders immediately.</p>
+            <button type="submit" class="admin-button admin-button--primary">Save shop settings</button>
+        </div>
+    </form>
+
+    <section class="editor-card operations-card delivery-zone-card">
+        <div class="detail-card__heading">
+            <div>
+                <h2>Delivery postcode coverage</h2>
+                <span>An address is accepted when its postcode starts with an active prefix.</span>
+            </div>
+            <a class="admin-button admin-button--secondary" asp-action="CreateZone">Add area</a>
+        </div>
+        @if (Model.DeliveryZones.Count == 0)
+        {
+            <div class="menu-category-empty">No active delivery coverage has been configured.</div>
+        }
+        else
+        {
+            <div class="delivery-zone-list">
+                @foreach (var zone in Model.DeliveryZones)
+                {
+                    <article class="@(zone.IsActive ? "" : "is-muted")">
+                        <div><strong>@zone.Name</strong><small>Postcodes beginning @zone.PostcodePrefix</small></div>
+                        <span class="availability-pill @(zone.IsActive ? "is-available" : "is-unavailable")">@(zone.IsActive ? "Active" : "Inactive")</span>
+                        <div class="compact-actions">
+                            <a asp-action="EditZone" asp-route-id="@zone.Id">Edit</a>
+                            <form asp-action="ToggleZone" asp-route-id="@zone.Id" method="post"><button type="submit">@(zone.IsActive ? "Pause" : "Activate")</button></form>
+                            <form asp-action="DeleteZone" asp-route-id="@zone.Id" method="post" data-confirm="Delete this delivery area?"><button type="submit" class="danger-action">Delete</button></form>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+    </section>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

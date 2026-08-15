@@ -1,0 +1,25 @@
+@model OptionGroupFormViewModel
+@{
+    Layout = "_AdminLayout";
+    var product = (Product)ViewBag.Product;
+    var isEditing = Model.Id > 0;
+    ViewData["Title"] = isEditing ? "Edit option group" : "Add option group";
+}
+
+<div class="admin-container admin-container--form">
+    <a class="back-link" asp-action="Options" asp-route-id="@product.Id"><span aria-hidden="true">←</span> Back to @product.Name options</a>
+    <header class="editor-heading"><p class="admin-eyebrow">Customisation group</p><h1>@(isEditing ? $"Edit {Model.Name}" : "Add an option group")</h1><p>Use a maximum of 1 for a single choice such as size, or a higher number for extras.</p></header>
+    <form asp-action="@(isEditing ? "EditGroup" : "CreateGroup")" asp-route-id="@(isEditing ? Model.Id : null)" asp-route-productId="@(!isEditing ? product.Id : null)" method="post" class="editor-card">
+        <input asp-for="ProductId" type="hidden" />
+        <div asp-validation-summary="ModelOnly" class="form-errors" role="alert"></div>
+        <div class="editor-grid">
+            <label class="editor-field editor-field--wide"><span>Group name</span><input asp-for="Name" autocomplete="off" placeholder="Choose your size" /><em asp-validation-for="Name"></em></label>
+            <label class="editor-field"><span>URL slug</span><input asp-for="Slug" autocomplete="off" placeholder="generated-from-name" /><em asp-validation-for="Slug"></em></label>
+            <label class="editor-field"><span>Display order</span><input asp-for="DisplayOrder" inputmode="numeric" /><em asp-validation-for="DisplayOrder"></em></label>
+            <label class="editor-field"><span>Minimum selections</span><input asp-for="MinimumSelections" inputmode="numeric" /><em asp-validation-for="MinimumSelections"></em></label>
+            <label class="editor-field"><span>Maximum selections</span><input asp-for="MaximumSelections" inputmode="numeric" /><em asp-validation-for="MaximumSelections"></em></label>
+        </div>
+        <label class="switch-field"><input asp-for="IsRequired" /><span><strong>Required choice</strong><small>The customer must complete this group before adding the product.</small></span></label>
+        <footer class="editor-footer"><a asp-action="Options" asp-route-id="@product.Id">Cancel</a><button class="admin-button admin-button--primary" type="submit">@(isEditing ? "Save group" : "Create group")</button></footer>
+    </form>
+</div>

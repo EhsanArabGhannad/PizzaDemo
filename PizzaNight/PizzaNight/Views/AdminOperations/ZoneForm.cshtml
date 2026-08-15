@@ -1,0 +1,51 @@
+@model DeliveryZoneFormViewModel
+@{
+    var isEditing = Model.Id > 0;
+    ViewData["Title"] = isEditing ? "Edit delivery area" : "Add delivery area";
+    Layout = "_AdminLayout";
+}
+
+<div class="admin-container admin-container--form">
+    <a class="back-link" asp-action="Index">← Back to shop settings</a>
+    <header class="editor-heading">
+        <p class="admin-eyebrow">Delivery coverage</p>
+        <h1>@(isEditing ? "Edit delivery area" : "Add delivery area")</h1>
+        <p>Use a postcode prefix such as DH8. Spaces and letter case are normalised automatically.</p>
+    </header>
+
+    <form method="post" class="editor-card">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="form-errors"></div>
+        <div class="editor-grid">
+            <label class="editor-field editor-field--wide">
+                <span>Area name</span>
+                <input asp-for="Name" autocomplete="off" placeholder="Consett and nearby DH8 addresses" />
+                <em asp-validation-for="Name"></em>
+            </label>
+            <label class="editor-field">
+                <span>Postcode prefix</span>
+                <input asp-for="PostcodePrefix" autocomplete="off" placeholder="DH8" />
+                <em asp-validation-for="PostcodePrefix"></em>
+            </label>
+            <label class="editor-field">
+                <span>Display order</span>
+                <input asp-for="DisplayOrder" type="number" min="0" max="10000" />
+                <em asp-validation-for="DisplayOrder"></em>
+            </label>
+        </div>
+        <div class="switch-stack">
+            <label class="switch-field">
+                <input asp-for="IsActive" />
+                <span><strong>Active delivery area</strong><small>Inactive prefixes remain saved but will not accept delivery orders.</small></span>
+            </label>
+        </div>
+        <footer class="editor-footer">
+            <a asp-action="Index">Cancel</a>
+            <button type="submit" class="admin-button admin-button--primary">@(isEditing ? "Save area" : "Add area")</button>
+        </footer>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

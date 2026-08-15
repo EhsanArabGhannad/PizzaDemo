@@ -1,0 +1,24 @@
+@model OptionEditorViewModel
+@{
+    Layout = "_AdminLayout";
+    var isEditing = Model.Option.Id > 0;
+    ViewData["Title"] = isEditing ? "Edit option" : "Add option";
+}
+
+<div class="admin-container admin-container--form">
+    <a class="back-link" asp-action="Options" asp-route-id="@Model.Product.Id"><span aria-hidden="true">←</span> Back to @Model.Product.Name options</a>
+    <header class="editor-heading"><p class="admin-eyebrow">@Model.Group.Name</p><h1>@(isEditing ? $"Edit {Model.Option.Name}" : "Add an option")</h1><p>Price adjustment is added to the product base price and may be zero for an included choice.</p></header>
+    <form asp-action="@(isEditing ? "EditOption" : "CreateOption")" asp-route-id="@(isEditing ? Model.Option.Id : null)" asp-route-groupId="@(!isEditing ? Model.Group.Id : null)" method="post" class="editor-card">
+        <input asp-for="Option.ProductOptionGroupId" type="hidden" />
+        <div asp-validation-summary="ModelOnly" class="form-errors" role="alert"></div>
+        <div class="editor-grid">
+            <label class="editor-field"><span>Option name</span><input asp-for="Option.Name" autocomplete="off" /><em asp-validation-for="Option.Name"></em></label>
+            <label class="editor-field"><span>Price adjustment (£)</span><input asp-for="Option.PriceAdjustment" type="number" min="0" max="999.99" step="0.01" inputmode="decimal" /><em asp-validation-for="Option.PriceAdjustment"></em></label>
+            <label class="editor-field editor-field--wide"><span>Description <small>(optional)</small></span><input asp-for="Option.Description" autocomplete="off" placeholder="Short customer-facing description" /><em asp-validation-for="Option.Description"></em></label>
+            <label class="editor-field"><span>URL slug</span><input asp-for="Option.Slug" autocomplete="off" placeholder="generated-from-name" /><em asp-validation-for="Option.Slug"></em></label>
+            <label class="editor-field"><span>Display order</span><input asp-for="Option.DisplayOrder" inputmode="numeric" /><em asp-validation-for="Option.DisplayOrder"></em></label>
+        </div>
+        <label class="switch-field"><input asp-for="Option.IsAvailable" /><span><strong>Available to select</strong><small>Turn this off temporarily without deleting the option.</small></span></label>
+        <footer class="editor-footer"><a asp-action="Options" asp-route-id="@Model.Product.Id">Cancel</a><button class="admin-button admin-button--primary" type="submit">@(isEditing ? "Save option" : "Create option")</button></footer>
+    </form>
+</div>

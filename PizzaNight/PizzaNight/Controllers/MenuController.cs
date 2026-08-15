@@ -9,7 +9,7 @@ namespace PizzaNight.Controllers;
 public sealed class MenuController(PizzaNightDbContext dbContext) : ControllerBase
 {
     [HttpGet]
-    [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any)]
+    [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
     public async Task<IActionResult> Get(CancellationToken cancellationToken)
     {
         var categories = await dbContext.MenuCategories

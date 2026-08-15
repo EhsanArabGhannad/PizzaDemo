@@ -7,10 +7,43 @@ public static class DbInitializer
 {
     public static async Task SeedAsync(PizzaNightDbContext dbContext)
     {
-        if (await dbContext.MenuCategories.AnyAsync())
+        if (!await dbContext.MenuCategories.AnyAsync())
         {
-            return;
+            SeedMenu(dbContext);
         }
+
+        if (!await dbContext.ShopSettings.AnyAsync())
+        {
+            dbContext.ShopSettings.Add(new ShopSettings());
+        }
+
+        if (!await dbContext.ShopOpeningHours.AnyAsync())
+        {
+            dbContext.ShopOpeningHours.AddRange(
+                CreateHours(DayOfWeek.Sunday, false, 17, 0, 23, 0),
+                CreateHours(DayOfWeek.Monday, false, 17, 0, 23, 0),
+                CreateHours(DayOfWeek.Tuesday, true, 17, 0, 23, 0),
+                CreateHours(DayOfWeek.Wednesday, false, 17, 0, 23, 0),
+                CreateHours(DayOfWeek.Thursday, false, 17, 0, 23, 0),
+                CreateHours(DayOfWeek.Friday, false, 17, 0, 23, 30),
+                CreateHours(DayOfWeek.Saturday, false, 17, 0, 23, 30));
+        }
+
+        if (!await dbContext.DeliveryZones.AnyAsync())
+        {
+            dbContext.DeliveryZones.Add(new DeliveryZone
+            {
+                Name = "Consett and nearby DH8 addresses",
+                PostcodePrefix = "DH8",
+                DisplayOrder = 1
+            });
+        }
+
+        await dbContext.SaveChangesAsync();
+    }
+
+    private static void SeedMenu(PizzaNightDbContext dbContext)
+    {
 
         var pizzas = new MenuCategory { Name = "Pizzas", Slug = "pizza", DisplayOrder = 1 };
         var burgers = new MenuCategory { Name = "Burgers", Slug = "burger", DisplayOrder = 2 };
@@ -91,8 +124,21 @@ public static class DbInitializer
             2));
 
         dbContext.MenuCategories.AddRange(pizzas, burgers, wraps, sides, deals);
-        await dbContext.SaveChangesAsync();
     }
+
+    private static ShopOpeningHour CreateHours(
+        DayOfWeek day,
+        bool isClosed,
+        int openHour,
+        int openMinute,
+        int closeHour,
+        int closeMinute) => new()
+        {
+            DayOfWeek = day,
+            IsClosed = isClosed,
+            OpenMinutes = openHour * 60 + openMinute,
+            CloseMinutes = closeHour * 60 + closeMinute
+        };
 
     private static Product CreatePizza(
         string name,

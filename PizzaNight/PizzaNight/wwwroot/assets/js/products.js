@@ -7,6 +7,46 @@ export const categories = [
   { id: "deal", label: "Meal deals" },
 ];
 
+const pizzaOptionGroups = [
+  {
+    id: "size",
+    name: "Choose your size",
+    required: true,
+    minimumSelections: 1,
+    maximumSelections: 1,
+    options: [
+      { id: "small", name: "10 inch", description: "Small", price: 0 },
+      { id: "medium", name: "12 inch", description: "Medium", price: 2 },
+      { id: "large", name: "14 inch", description: "Large", price: 4 },
+    ],
+  },
+  {
+    id: "crust",
+    name: "Choose your crust",
+    required: true,
+    minimumSelections: 1,
+    maximumSelections: 1,
+    options: [
+      { id: "classic", name: "Classic", description: "Soft & golden", price: 0 },
+      { id: "thin", name: "Thin", description: "Light & crispy", price: 0 },
+      { id: "stuffed", name: "Stuffed", description: "Cheese-filled edge", price: 2.5 },
+    ],
+  },
+  {
+    id: "extras",
+    name: "Add extras",
+    required: false,
+    minimumSelections: 0,
+    maximumSelections: 4,
+    options: [
+      { id: "extra-cheese", name: "Extra cheese", description: "More mozzarella", price: 1.2 },
+      { id: "pepperoni", name: "Pepperoni", description: "Extra portion", price: 1.5 },
+      { id: "mushrooms", name: "Mushrooms", description: "Freshly sliced", price: 0.8 },
+      { id: "jalapenos", name: "Jalapeños", description: "Add some heat", price: 0.7 },
+    ],
+  },
+];
+
 export const products = [
   {
     id: "knights-special",
@@ -17,6 +57,7 @@ export const products = [
     image: "assets/images/menu-supreme-pizza.webp",
     badge: "Bestseller",
     customisable: true,
+    optionGroups: pizzaOptionGroups,
   },
   {
     id: "pepperoni-feast",
@@ -26,6 +67,7 @@ export const products = [
     price: 9.99,
     image: "assets/images/pizza-hero.webp",
     customisable: true,
+    optionGroups: pizzaOptionGroups,
   },
   {
     id: "margherita",
@@ -35,6 +77,7 @@ export const products = [
     price: 7.99,
     image: "assets/images/menu-supreme-pizza.webp",
     customisable: true,
+    optionGroups: pizzaOptionGroups,
   },
   {
     id: "double-smash",

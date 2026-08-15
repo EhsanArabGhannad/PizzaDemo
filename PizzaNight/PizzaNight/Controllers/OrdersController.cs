@@ -41,7 +41,7 @@ public sealed class OrdersController(OrderSubmissionService orderSubmissionServi
             ToPounds(order.DeliveryFeePence),
             ToPounds(order.ServiceFeePence),
             ToPounds(order.TotalPence),
-            order.Type == Models.OrderType.Delivery ? "35–50 mins" : "20–30 mins"));
+            result.EstimatedTime!));
     }
 
     private static decimal ToPounds(int pence) => pence / 100m;

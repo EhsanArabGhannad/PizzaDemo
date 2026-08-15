@@ -81,7 +81,7 @@
           <div class="hero__content">
             <p class="eyebrow"><span class="eyebrow__icon" aria-hidden="true">♞</span>Your local pizza champion</p>
             <h1 id="hero-title">Consett’s pizza night, <em>done right.</em></h1>
-            <p class="hero__intro">Freshly prepared pizzas, loaded sides and proper meal deals — ready for delivery or collection, seven days a week.</p>
+            <p class="hero__intro">Freshly prepared pizzas, loaded sides and proper meal deals — ready for delivery or collection throughout the week.</p>
 
             <div class="hero__actions" aria-label="Choose an order type">
               <a class="button button--primary" href="#menu">
@@ -95,14 +95,14 @@
             </div>
 
             <div class="hero__facts" aria-label="Ordering information">
-              <div class="hero-fact"><span class="hero-fact__status" aria-hidden="true"></span><span><small>Today</small><strong>Open now</strong></span></div>
+              <div class="hero-fact"><span class="hero-fact__status" aria-hidden="true"></span><span><small>Today</small><strong data-shop-status>Checking order status…</strong></span></div>
               <div class="hero-fact">
                 <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
-                <span><small>Estimated delivery</small><strong>35–50 mins</strong></span>
+                <span><small>Estimated delivery</small><strong data-shop-delivery-eta>35–50 mins</strong></span>
               </div>
               <div class="hero-fact">
                 <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21s7-5.2 7-12a7 7 0 1 0-14 0c0 6.8 7 12 7 12Z" /><circle cx="12" cy="9" r="2.2" /></svg>
-                <span><small>Delivering around</small><strong>Consett</strong></span>
+                <span><small>Delivering around</small><strong data-shop-delivery-coverage>Consett</strong></span>
               </div>
             </div>
           </div>
@@ -151,7 +151,7 @@
               <p class="eyebrow">Plan your pizza night</p>
               <h2 id="delivery-title">Delivery or collection, your call.</h2>
             </div>
-            <p>Choose the option that suits your evening. Times and coverage below are illustrative for this concept demo.</p>
+            <p>Choose the option that suits your evening. Current times, fees and coverage come directly from the shop settings.</p>
           </div>
 
           <div class="fulfilment-grid">
@@ -161,8 +161,8 @@
               </span>
               <p class="eyebrow">To your door</p>
               <h3>Delivery</h3>
-              <p>Prepared fresh and delivered around Consett in an estimated 35–50 minutes.</p>
-              <strong>£2.50 delivery fee</strong>
+              <p>Prepared fresh and delivered in an estimated <span data-shop-delivery-eta>35–50 mins</span>.</p>
+              <strong><span data-shop-delivery-fee>£2.50</span> delivery fee · <span data-shop-delivery-minimum>£10.00</span> minimum</strong>
             </article>
 
             <article class="fulfilment-card">
@@ -171,7 +171,7 @@
               </span>
               <p class="eyebrow">Pick it up</p>
               <h3>Collection</h3>
-              <p>Skip the delivery fee and collect your order in an estimated 20–30 minutes.</p>
+              <p>Skip the delivery fee and collect your order in an estimated <span data-shop-collection-eta>20–30 mins</span>.</p>
               <strong>Free collection</strong>
             </article>
 
@@ -182,13 +182,13 @@
               <p class="eyebrow">Simple pricing</p>
               <h3>Order fees</h3>
               <p>A fixed service fee applies once to each non-empty online order, not to every item.</p>
-              <strong>£0.50 per order</strong>
+              <strong><span data-shop-service-fee>£0.50</span> per order</strong>
             </article>
           </div>
 
           <aside class="delivery-note" aria-label="Demo delivery coverage note">
             <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21s7-5.2 7-12a7 7 0 1 0-14 0c0 6.8 7 12 7 12Z" /><circle cx="12" cy="9" r="2.2" /></svg>
-            <div><strong>Demo coverage: Consett</strong><span>A production website would check the customer’s postcode before confirming delivery.</span></div>
+            <div><strong>Delivery coverage</strong><span data-shop-delivery-coverage>Consett and nearby DH8 addresses</span></div>
             <a href="#menu">Browse the menu</a>
           </aside>
         </div>
@@ -225,14 +225,14 @@
                 <span class="business-card__icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" /><path d="M12 7v5l3 2" /></svg>
                 </span>
-                <div><small>Published hours</small><strong>5:00pm–11:00pm</strong><span>Closed Tuesday · Fri &amp; Sat until 11:30pm</span></div>
+                <div><small>Today’s opening hours</small><strong data-shop-today-hours>Checking today’s hours…</strong><span>The weekly schedule is managed in the shop system.</span></div>
               </div>
             </div>
             <div class="business-card__actions">
               <a class="button button--primary" href="tel:+441207437590">Call the shop</a>
               <a class="button button--outline" href="https://www.google.com/maps/dir/?api=1&amp;destination=54.85391650,-1.83203480" target="_blank" rel="noopener">Get directions</a>
             </div>
-            <p class="business-card__note">Opening times shown here come from the latest published business listing and should be confirmed before the live launch.</p>
+            <p class="business-card__note">Online ordering status and opening times update from the same settings used to validate new orders.</p>
           </aside>
         </div>
       </section>
@@ -256,35 +256,7 @@
           </button>
         </header>
 
-        <div class="customizer__content">
-          <fieldset class="option-group">
-            <legend><span>1</span> Choose your size <small>Required</small></legend>
-            <div class="option-grid option-grid--three">
-              <label class="choice-card"><input type="radio" name="pizza-size" value="small" data-price="0" checked /><span><strong>10 inch</strong><small>Small</small></span><b>Included</b></label>
-              <label class="choice-card"><input type="radio" name="pizza-size" value="medium" data-price="2" /><span><strong>12 inch</strong><small>Medium</small></span><b>+£2.00</b></label>
-              <label class="choice-card"><input type="radio" name="pizza-size" value="large" data-price="4" /><span><strong>14 inch</strong><small>Large</small></span><b>+£4.00</b></label>
-            </div>
-          </fieldset>
-
-          <fieldset class="option-group">
-            <legend><span>2</span> Choose your crust <small>Required</small></legend>
-            <div class="option-grid option-grid--three">
-              <label class="choice-card"><input type="radio" name="pizza-crust" value="classic" data-price="0" checked /><span><strong>Classic</strong><small>Soft & golden</small></span><b>Included</b></label>
-              <label class="choice-card"><input type="radio" name="pizza-crust" value="thin" data-price="0" /><span><strong>Thin</strong><small>Light & crispy</small></span><b>Included</b></label>
-              <label class="choice-card"><input type="radio" name="pizza-crust" value="stuffed" data-price="2.5" /><span><strong>Stuffed</strong><small>Cheese-filled edge</small></span><b>+£2.50</b></label>
-            </div>
-          </fieldset>
-
-          <fieldset class="option-group">
-            <legend><span>3</span> Add extras <small>Optional</small></legend>
-            <div class="option-grid">
-              <label class="choice-card choice-card--checkbox"><input type="checkbox" name="pizza-extra" value="extra-cheese" data-price="1.2" /><span><strong>Extra cheese</strong><small>More mozzarella</small></span><b>+£1.20</b></label>
-              <label class="choice-card choice-card--checkbox"><input type="checkbox" name="pizza-extra" value="pepperoni" data-price="1.5" /><span><strong>Pepperoni</strong><small>Extra portion</small></span><b>+£1.50</b></label>
-              <label class="choice-card choice-card--checkbox"><input type="checkbox" name="pizza-extra" value="mushrooms" data-price="0.8" /><span><strong>Mushrooms</strong><small>Freshly sliced</small></span><b>+£0.80</b></label>
-              <label class="choice-card choice-card--checkbox"><input type="checkbox" name="pizza-extra" value="jalapenos" data-price="0.7" /><span><strong>Jalapeños</strong><small>Add some heat</small></span><b>+£0.70</b></label>
-            </div>
-          </fieldset>
-        </div>
+        <div class="customizer__content" data-customizer-options></div>
 
         <footer class="customizer__footer">
           <div class="quantity-control" aria-label="Quantity selector">
@@ -370,12 +342,12 @@
                   <label class="form-field"><span>Postcode</span><input type="text" name="checkout-postcode" autocomplete="postal-code" /></label>
                   <label class="form-field"><span>Address line</span><input type="text" name="checkout-address" autocomplete="street-address" /></label>
                 </div>
-                <p>Coverage is currently limited to the test flow; no postcode lookup is performed yet.</p>
+                <p>Current coverage: <span data-shop-delivery-coverage>Consett and nearby DH8 addresses</span>. Your postcode is checked before the order is saved.</p>
               </fieldset>
 
               <div class="checkout-collection-card" data-checkout-collection hidden>
                 <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 10h16l-1 10H5L4 10Zm3-4a5 5 0 0 1 10 0v4H7V6Z" /></svg>
-                <div><strong>Collection selected</strong><span>Your demo order would be ready in approximately 20–30 minutes.</span></div>
+                <div><strong>Collection selected</strong><span>Your demo order would be ready in approximately <span data-shop-collection-eta>20–30 mins</span>.</span></div>
               </div>
 
               <div class="checkout-payment-note">

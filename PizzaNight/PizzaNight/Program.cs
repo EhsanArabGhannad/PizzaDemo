@@ -21,6 +21,8 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<PizzaNightDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("PizzaNight")));
 builder.Services.AddScoped<OrderSubmissionService>();
+builder.Services.AddScoped<ShopOperationsService>();
+builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddScoped<AdminCredentialValidator>();
 builder.Services.AddOptions<AdminOptions>()
     .Bind(builder.Configuration.GetSection(AdminOptions.SectionName))

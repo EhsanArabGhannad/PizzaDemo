@@ -1,0 +1,26 @@
+@model CategoryFormViewModel
+@{
+    Layout = "_AdminLayout";
+    var isEditing = Model.Id > 0;
+    ViewData["Title"] = isEditing ? "Edit category" : "Add category";
+}
+
+<div class="admin-container admin-container--form">
+    <a class="back-link" asp-action="Index"><span aria-hidden="true">←</span> Back to menu</a>
+    <header class="editor-heading">
+        <p class="admin-eyebrow">Menu category</p>
+        <h1>@(isEditing ? $"Edit {Model.Name}" : "Add a category")</h1>
+        <p>Categories group products in the customer menu. Hidden categories and their products cannot be ordered.</p>
+    </header>
+
+    <form asp-action="@(isEditing ? "EditCategory" : "CreateCategory")" asp-route-id="@(isEditing ? Model.Id : null)" method="post" class="editor-card">
+        <div asp-validation-summary="ModelOnly" class="form-errors" role="alert"></div>
+        <div class="editor-grid">
+            <label class="editor-field editor-field--wide"><span>Name</span><input asp-for="Name" autocomplete="off" /><small>Shown to customers, for example Pizzas or Sides.</small><em asp-validation-for="Name"></em></label>
+            <label class="editor-field"><span>URL slug</span><input asp-for="Slug" autocomplete="off" placeholder="generated-from-name" /><small>Leave blank to generate automatically.</small><em asp-validation-for="Slug"></em></label>
+            <label class="editor-field"><span>Display order</span><input asp-for="DisplayOrder" inputmode="numeric" /><small>Lower numbers appear first.</small><em asp-validation-for="DisplayOrder"></em></label>
+        </div>
+        <label class="switch-field"><input asp-for="IsActive" /><span><strong>Visible on the website</strong><small>Customers can browse and order products in this category.</small></span></label>
+        <footer class="editor-footer"><a asp-action="Index">Cancel</a><button class="admin-button admin-button--primary" type="submit">@(isEditing ? "Save category" : "Create category")</button></footer>
+    </form>
+</div>

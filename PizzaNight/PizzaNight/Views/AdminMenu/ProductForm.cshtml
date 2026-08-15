@@ -1,0 +1,46 @@
+@model ProductEditorViewModel
+@{
+    Layout = "_AdminLayout";
+    var isEditing = Model.Product.Id > 0;
+    ViewData["Title"] = isEditing ? "Edit product" : "Add product";
+}
+
+<div class="admin-container admin-container--form">
+    <a class="back-link" asp-action="Index"><span aria-hidden="true">←</span> Back to menu</a>
+    <header class="editor-heading">
+        <p class="admin-eyebrow">Menu product</p>
+        <h1>@(isEditing ? $"Edit {Model.Product.Name}" : "Add a product")</h1>
+        <p>Product prices are entered in pounds and stored safely as pence.</p>
+    </header>
+
+    <form asp-action="@(isEditing ? "EditProduct" : "CreateProduct")" asp-route-id="@(isEditing ? Model.Product.Id : null)" method="post" class="editor-card">
+        <input asp-for="Product.Id" type="hidden" />
+        <div asp-validation-summary="ModelOnly" class="form-errors" role="alert"></div>
+        <div class="editor-grid">
+            <label class="editor-field"><span>Name</span><input asp-for="Product.Name" autocomplete="off" /><em asp-validation-for="Product.Name"></em></label>
+            <label class="editor-field"><span>Category</span><select asp-for="Product.MenuCategoryId">@foreach (var category in Model.Categories) { <option value="@category.Id">@category.Name</option> }</select><em asp-validation-for="Product.MenuCategoryId"></em></label>
+            <label class="editor-field editor-field--wide"><span>Description</span><textarea asp-for="Product.Description" rows="4"></textarea><em asp-validation-for="Product.Description"></em></label>
+            <label class="editor-field"><span>Base price (£)</span><input asp-for="Product.BasePrice" type="number" min="0.01" max="999.99" step="0.01" inputmode="decimal" /><em asp-validation-for="Product.BasePrice"></em></label>
+            <label class="editor-field"><span>Badge <small>(optional)</small></span><input asp-for="Product.Badge" autocomplete="off" placeholder="Popular, New, Save £5" /><em asp-validation-for="Product.Badge"></em></label>
+            <label class="editor-field"><span>URL slug</span><input asp-for="Product.Slug" autocomplete="off" placeholder="generated-from-name" /><small>Leave blank to generate automatically.</small><em asp-validation-for="Product.Slug"></em></label>
+            <label class="editor-field"><span>Display order</span><input asp-for="Product.DisplayOrder" inputmode="numeric" /><small>Lower numbers appear first in the category.</small><em asp-validation-for="Product.DisplayOrder"></em></label>
+            <label class="editor-field editor-field--wide"><span>Product image</span><select asp-for="Product.ImagePath" data-image-select>@foreach (var image in Model.AvailableImages) { <option value="@image">@System.IO.Path.GetFileNameWithoutExtension(image)</option> }</select><em asp-validation-for="Product.ImagePath"></em></label>
+        </div>
+
+        <div class="image-preview"><img src="@Model.Product.ImagePath" alt="Selected product preview" width="180" height="180" data-image-preview /><span>The selected image is reused from the current approved menu library.</span></div>
+
+        <div class="switch-stack">
+            <label class="switch-field"><input asp-for="Product.IsAvailable" /><span><strong>Available to order</strong><small>Turn this off to mark the item sold out without deleting it.</small></span></label>
+            <label class="switch-field"><input asp-for="Product.IsCustomisable" /><span><strong>Customer can customise this product</strong><small>After saving, configure sizes, crusts or extras on the options page.</small></span></label>
+        </div>
+        <footer class="editor-footer"><a asp-action="Index">Cancel</a><button class="admin-button admin-button--primary" type="submit">@(isEditing ? "Save product" : "Create product")</button></footer>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        const imageSelect = document.querySelector("[data-image-select]");
+        const imagePreview = document.querySelector("[data-image-preview]");
+        imageSelect?.addEventListener("change", () => imagePreview.src = imageSelect.value);
+    </script>
+}

@@ -12,6 +12,9 @@ public sealed class PizzaNightDbContext(DbContextOptions<PizzaNightDbContext> op
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<OrderItem> OrderItems => Set<OrderItem>();
     public DbSet<OrderItemOption> OrderItemOptions => Set<OrderItemOption>();
+    public DbSet<ShopSettings> ShopSettings => Set<ShopSettings>();
+    public DbSet<ShopOpeningHour> ShopOpeningHours => Set<ShopOpeningHour>();
+    public DbSet<DeliveryZone> DeliveryZones => Set<DeliveryZone>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -96,6 +99,24 @@ public sealed class PizzaNightDbContext(DbContextOptions<PizzaNightDbContext> op
         modelBuilder.Entity<OrderItemOption>(entity =>
         {
             entity.Property(option => option.Name).HasMaxLength(160);
+        });
+
+        modelBuilder.Entity<ShopSettings>(entity =>
+        {
+            entity.Property(settings => settings.TemporaryClosureMessage).HasMaxLength(240);
+        });
+
+        modelBuilder.Entity<ShopOpeningHour>(entity =>
+        {
+            entity.HasIndex(hours => hours.DayOfWeek).IsUnique();
+            entity.Property(hours => hours.DayOfWeek).HasConversion<string>().HasMaxLength(12);
+        });
+
+        modelBuilder.Entity<DeliveryZone>(entity =>
+        {
+            entity.HasIndex(zone => zone.PostcodePrefix).IsUnique();
+            entity.Property(zone => zone.Name).HasMaxLength(100);
+            entity.Property(zone => zone.PostcodePrefix).HasMaxLength(12);
         });
     }
 }

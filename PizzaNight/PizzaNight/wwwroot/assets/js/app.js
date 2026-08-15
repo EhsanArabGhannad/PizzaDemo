@@ -16,8 +16,10 @@ const customizerClose = document.querySelector("[data-customizer-close]");
 const customizerImage = document.querySelector("[data-customizer-image]");
 const customizerName = document.querySelector("[data-customizer-name]");
 const customizerDescription = document.querySelector("[data-customizer-description]");
+const customizerOptions = document.querySelector("[data-customizer-options]");
 const customizerTotal = document.querySelector("[data-customizer-total]");
 const quantityOutput = document.querySelector("[data-quantity]");
+const customizerAddButton = customizerForm?.querySelector('button[type="submit"]');
 const basket = document.querySelector("[data-basket]");
 const basketOpenButtons = document.querySelectorAll("[data-basket-open]");
 const basketCloseButton = document.querySelector("[data-basket-close]");
@@ -59,10 +61,28 @@ const confirmationDelivery = document.querySelector("[data-confirmation-delivery
 const confirmationService = document.querySelector("[data-confirmation-service]");
 const confirmationTotal = document.querySelector("[data-confirmation-total]");
 const feeInfoButton = document.querySelector("[data-fee-info]");
+const shopStatusElements = document.querySelectorAll("[data-shop-status]");
+const deliveryEtaElements = document.querySelectorAll("[data-shop-delivery-eta]");
+const collectionEtaElements = document.querySelectorAll("[data-shop-collection-eta]");
+const deliveryFeeCopyElements = document.querySelectorAll("[data-shop-delivery-fee]");
+const serviceFeeCopyElements = document.querySelectorAll("[data-shop-service-fee]");
+const deliveryMinimumElements = document.querySelectorAll("[data-shop-delivery-minimum]");
+const deliveryCoverageElements = document.querySelectorAll("[data-shop-delivery-coverage]");
+const todayHoursElements = document.querySelectorAll("[data-shop-today-hours]");
 
-const SERVICE_FEE = 0.5;
-const DELIVERY_FEE = 2.5;
 const BASKET_STORAGE_KEY = "pizza-knight-basket-v2";
+
+let shopOperations = {
+  acceptingOnlineOrders: true,
+  statusMessage: "Open for online orders",
+  deliveryMinimum: 10,
+  deliveryFee: 2.5,
+  serviceFee: 0.5,
+  deliveryEta: "35–50 mins",
+  collectionEta: "20–30 mins",
+  deliveryZones: [{ name: "Consett and nearby DH8 addresses", prefix: "DH8" }],
+  openingHours: [],
+};
 
 const currencyFormatter = new Intl.NumberFormat("en-GB", {
   style: "currency",
@@ -92,6 +112,30 @@ async function loadMenuData() {
     categories = fallback.categories;
     products = fallback.products;
     showToast("The live menu is temporarily unavailable. Showing the saved menu.");
+  }
+}
+
+async function loadShopOperations() {
+  try {
+    const response = await fetch("/api/shop", {
+      headers: { Accept: "application/json" },
+      cache: "no-store",
+    });
+    if (!response.ok) throw new Error(`Shop settings request failed with status ${response.status}.`);
+
+    const settings = await response.json();
+    if (typeof settings.acceptingOnlineOrders !== "boolean") {
+      throw new Error("Shop settings response has an invalid shape.");
+    }
+
+    shopOperations = {
+      ...shopOperations,
+      ...settings,
+      deliveryZones: Array.isArray(settings.deliveryZones) ? settings.deliveryZones : [],
+    };
+  } catch (error) {
+    console.error("Could not load live shop settings; using the saved defaults.", error);
+    showToast("Live shop settings are temporarily unavailable. Showing saved information.");
   }
 }
 
@@ -327,8 +371,8 @@ function getBasketTotals() {
   const itemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
   const subtotal = cartItems.reduce((total, item) => total + item.unitPrice * item.quantity, 0);
   const hasItems = itemCount > 0;
-  const serviceFee = hasItems ? SERVICE_FEE : 0;
-  const deliveryFee = hasItems && orderType === "delivery" ? DELIVERY_FEE : 0;
+  const serviceFee = hasItems ? Number(shopOperations.serviceFee) : 0;
+  const deliveryFee = hasItems && orderType === "delivery" ? Number(shopOperations.deliveryFee) : 0;
 
   return {
     itemCount,
@@ -338,6 +382,55 @@ function getBasketTotals() {
     deliveryFee,
     total: subtotal + serviceFee + deliveryFee,
   };
+}
+
+function normalisePostcode(postcode) {
+  return String(postcode ?? "").replace(/\s+/g, "").toUpperCase();
+}
+
+function coversDeliveryPostcode(postcode) {
+  const normalized = normalisePostcode(postcode);
+  return normalized.length > 0 && shopOperations.deliveryZones.some((zone) =>
+    normalized.startsWith(normalisePostcode(zone.prefix)),
+  );
+}
+
+function checkoutBlockReason() {
+  if (!shopOperations.acceptingOnlineOrders) return shopOperations.statusMessage;
+  const totals = getBasketTotals();
+  if (orderType === "delivery" && totals.subtotal < Number(shopOperations.deliveryMinimum)) {
+    return `Delivery requires a minimum food subtotal of ${currencyFormatter.format(shopOperations.deliveryMinimum)}.`;
+  }
+  return null;
+}
+
+function renderShopOperations() {
+  shopStatusElements.forEach((element) => {
+    element.textContent = shopOperations.statusMessage;
+    element.closest(".hero-fact")?.classList.toggle("is-closed", !shopOperations.acceptingOnlineOrders);
+  });
+  deliveryEtaElements.forEach((element) => { element.textContent = shopOperations.deliveryEta; });
+  collectionEtaElements.forEach((element) => { element.textContent = shopOperations.collectionEta; });
+  deliveryFeeCopyElements.forEach((element) => { element.textContent = currencyFormatter.format(shopOperations.deliveryFee); });
+  serviceFeeCopyElements.forEach((element) => { element.textContent = currencyFormatter.format(shopOperations.serviceFee); });
+  deliveryMinimumElements.forEach((element) => { element.textContent = currencyFormatter.format(shopOperations.deliveryMinimum); });
+
+  const coverage = shopOperations.deliveryZones.length
+    ? shopOperations.deliveryZones.map((zone) => zone.name).join(", ")
+    : "No delivery areas are currently active";
+  deliveryCoverageElements.forEach((element) => { element.textContent = coverage; });
+
+  const today = shopOperations.openingHours.find((hours) => hours.day === shopOperations.currentDay);
+  const todayHours = !today || today.isClosed
+    ? "Closed today"
+    : `${formatShopTime(today.opensAt)}–${formatShopTime(today.closesAt)}`;
+  todayHoursElements.forEach((element) => { element.textContent = todayHours; });
+}
+
+function formatShopTime(value) {
+  const [hours, minutes] = String(value).split(":").map(Number);
+  const suffix = hours >= 12 ? "pm" : "am";
+  return `${hours % 12 || 12}:${String(minutes).padStart(2, "0")}${suffix}`;
 }
 
 function basketItemTemplate(item) {
@@ -381,9 +474,10 @@ function renderBasket() {
   if (checkoutButton) checkoutButton.disabled = !hasItems;
   if (basketClearButton) basketClearButton.hidden = !hasItems;
   if (basketNote) {
-    basketNote.textContent = hasItems
-      ? `${itemCount} item${itemCount === 1 ? "" : "s"} · ${orderType === "delivery" ? "Delivery in 35–50 mins" : "Ready to collect in 20–30 mins"}`
-      : "Add items to see your order total.";
+    const blocked = hasItems ? checkoutBlockReason() : null;
+    basketNote.textContent = blocked || (hasItems
+      ? `${itemCount} item${itemCount === 1 ? "" : "s"} · ${orderType === "delivery" ? `Delivery in ${shopOperations.deliveryEta}` : `Ready to collect in ${shopOperations.collectionEta}`}`
+      : "Add items to see your order total.");
   }
 
   document.querySelectorAll("[data-order-type]").forEach((button) => {
@@ -460,6 +554,12 @@ function renderCheckout() {
 function openCheckout() {
   if (!checkoutDialog || !getBasketTotals().hasItems) return;
 
+  const blocked = checkoutBlockReason();
+  if (blocked) {
+    showToast(blocked);
+    return;
+  }
+
   renderCheckout();
   closeBasket();
   checkoutDialog.showModal();
@@ -506,13 +606,60 @@ function updateCustomizerSummary() {
   if (decreaseButton) decreaseButton.disabled = selectedQuantity === 1;
 }
 
+function renderCustomizerOptions(product) {
+  if (!customizerOptions) return false;
+
+  const groups = Array.isArray(product.optionGroups) ? product.optionGroups : [];
+  if (!groups.length) {
+    customizerOptions.innerHTML = '<p class="customizer-options-empty">Customisation choices are temporarily unavailable.</p>';
+    return false;
+  }
+
+  customizerOptions.innerHTML = groups.map((group, groupIndex) => {
+    const singleChoice = group.maximumSelections === 1;
+    const inputType = singleChoice ? "radio" : "checkbox";
+    const availableOptions = Array.isArray(group.options) ? group.options : [];
+    const gridClass = availableOptions.length <= 3 ? " option-grid--three" : "";
+    const requirement = group.minimumSelections > 0 ? "Required" : "Optional";
+
+    return `
+      <fieldset class="option-group" data-option-group-container="${escapeHtml(group.id)}">
+        <legend><span>${groupIndex + 1}</span> ${escapeHtml(group.name)} <small>${requirement}</small></legend>
+        <div class="option-grid${gridClass}">
+          ${availableOptions.map((option, optionIndex) => {
+            const isChecked = singleChoice && group.minimumSelections > 0 && optionIndex === 0;
+            const priceLabel = Number(option.price) > 0 ? `+${currencyFormatter.format(option.price)}` : "Included";
+            return `
+              <label class="choice-card${singleChoice ? "" : " choice-card--checkbox"}">
+                <input
+                  type="${inputType}"
+                  name="product-option-${escapeHtml(group.id)}"
+                  value="${escapeHtml(option.id)}"
+                  data-option-group="${escapeHtml(group.id)}"
+                  data-price="${Number(option.price)}"
+                  ${isChecked ? "checked" : ""}
+                />
+                <span><strong>${escapeHtml(option.name)}</strong><small>${escapeHtml(option.description || "No extra details")}</small></span>
+                <b>${priceLabel}</b>
+              </label>`;
+          }).join("")}
+        </div>
+        ${!singleChoice ? `<p class="option-group__hint">Choose ${group.minimumSelections}–${group.maximumSelections}</p>` : ""}
+      </fieldset>`;
+  }).join("");
+
+  return groups.every((group) => Array.isArray(group.options) && group.options.length >= group.minimumSelections);
+}
+
 function openCustomizer(product, trigger) {
   if (!customizer || !customizerForm) return;
 
   selectedProduct = product;
   selectedQuantity = 1;
   lastCustomizerTrigger = trigger;
+  const canConfigure = renderCustomizerOptions(product);
   customizerForm.reset();
+  if (customizerAddButton) customizerAddButton.disabled = !canConfigure;
 
   if (customizerImage) {
     customizerImage.src = product.image;
@@ -578,7 +725,18 @@ customizer?.addEventListener("cancel", () => {
   syncModalState();
 });
 
-customizerForm?.addEventListener("change", updateCustomizerSummary);
+customizerForm?.addEventListener("change", (event) => {
+  const changedOption = event.target.closest('input[data-option-group][type="checkbox"]');
+  if (changedOption?.checked && selectedProduct) {
+    const group = selectedProduct.optionGroups.find((candidate) => candidate.id === changedOption.dataset.optionGroup);
+    const selectedInGroup = customizerForm.querySelectorAll(`input[data-option-group="${CSS.escape(changedOption.dataset.optionGroup)}"]:checked`);
+    if (group && selectedInGroup.length > group.maximumSelections) {
+      changedOption.checked = false;
+      showToast(`Choose no more than ${group.maximumSelections} option${group.maximumSelections === 1 ? "" : "s"} for ${group.name}.`);
+    }
+  }
+  updateCustomizerSummary();
+});
 
 customizerForm?.addEventListener("click", (event) => {
   const quantityButton = event.target.closest("[data-quantity-change]");
@@ -592,27 +750,31 @@ customizerForm?.addEventListener("submit", (event) => {
   event.preventDefault();
   if (!selectedProduct) return;
 
-  const sizeLabels = { small: '10"', medium: '12"', large: '14"' };
-  const crustLabels = { classic: "Classic crust", thin: "Thin crust", stuffed: "Stuffed crust" };
-  const extraLabels = { "extra-cheese": "Extra cheese", pepperoni: "Extra pepperoni", mushrooms: "Mushrooms", jalapenos: "Jalapeños" };
-  const size = customizerForm.querySelector('input[name="pizza-size"]:checked')?.value;
-  const crust = customizerForm.querySelector('input[name="pizza-crust"]:checked')?.value;
-  const extraIds = [...customizerForm.querySelectorAll('input[name="pizza-extra"]:checked')]
-    .map((input) => input.value);
-  const selections = { size: [size], crust: [crust], extras: extraIds };
+  const selections = {};
+  for (const group of selectedProduct.optionGroups) {
+    const selectedIds = [...customizerForm.querySelectorAll(`input[data-option-group="${CSS.escape(group.id)}"]:checked`)]
+      .map((input) => input.value);
+    if (selectedIds.length < group.minimumSelections || selectedIds.length > group.maximumSelections) {
+      showToast(`Choose between ${group.minimumSelections} and ${group.maximumSelections} option${group.maximumSelections === 1 ? "" : "s"} for ${group.name}.`);
+      return;
+    }
+    selections[group.id] = selectedIds;
+  }
+
   const configuration = resolveCartConfiguration(selectedProduct, selections);
-  const unitPrice = configuration?.unitPrice ?? calculateCustomisedPrice() / selectedQuantity;
-  const details = configuration?.details
-    ?? [sizeLabels[size], crustLabels[crust], ...extraIds.map((extra) => extraLabels[extra])].join(" · ");
+  if (!configuration) {
+    showToast("These choices are no longer available. Please reopen the product and try again.");
+    return;
+  }
 
   cartItems.push({
     key: `${selectedProduct.id}-${Date.now()}`,
     productId: selectedProduct.id,
     name: selectedProduct.name,
     image: selectedProduct.image,
-    unitPrice: Number(unitPrice.toFixed(2)),
+    unitPrice: configuration.unitPrice,
     quantity: selectedQuantity,
-    details,
+    details: configuration.details,
     selections,
   });
   renderBasket();
@@ -658,7 +820,7 @@ document.querySelectorAll("[data-order-type]").forEach((button) => {
 });
 
 feeInfoButton?.addEventListener("click", () => {
-  showToast("A fixed 50p service fee applies once per successful online order.");
+  showToast(`A fixed ${currencyFormatter.format(shopOperations.serviceFee)} service fee applies once per successful online order.`);
 });
 
 basketClearButton?.addEventListener("click", () => {
@@ -694,6 +856,19 @@ checkoutForm?.addEventListener("submit", async (event) => {
   if (!cartItems.length || !checkoutSubmitButton) return;
 
   const formData = new FormData(checkoutForm);
+  const blocked = checkoutBlockReason();
+  if (blocked) {
+    showToast(blocked);
+    return;
+  }
+
+  const postcode = String(formData.get("checkout-postcode") ?? "").trim();
+  if (orderType === "delivery" && !coversDeliveryPostcode(postcode)) {
+    showToast("Sorry, we do not currently deliver to that postcode.");
+    checkoutForm.querySelector('[name="checkout-postcode"]')?.focus();
+    return;
+  }
+
   const customerName = String(formData.get("checkout-name") ?? "").trim();
   const submittedItems = cartItems.map((item) => ({
     productId: item.productId,
@@ -719,7 +894,7 @@ checkoutForm?.addEventListener("submit", async (event) => {
         customerEmail: String(formData.get("checkout-email") ?? "").trim(),
         customerPhone: String(formData.get("checkout-phone") ?? "").trim(),
         orderType: submittedOrderType,
-        postcode: String(formData.get("checkout-postcode") ?? "").trim() || null,
+        postcode: postcode || null,
         addressLine: String(formData.get("checkout-address") ?? "").trim() || null,
         orderNotes: String(formData.get("checkout-notes") ?? "").trim() || null,
         items: submittedItems,
@@ -777,8 +952,9 @@ confirmationDialog?.addEventListener("close", syncModalState);
 confirmationDialog?.addEventListener("cancel", syncModalState);
 
 async function initialiseApp() {
-  await loadMenuData();
+  await Promise.all([loadMenuData(), loadShopOperations()]);
   restoreBasketState();
+  renderShopOperations();
   renderCategoryButtons();
   renderProducts();
   renderBasket();

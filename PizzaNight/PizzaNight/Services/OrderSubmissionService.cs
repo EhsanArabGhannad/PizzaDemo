@@ -6,10 +6,10 @@ using PizzaNight.Models;
 
 namespace PizzaNight.Services;
 
-public sealed class OrderSubmissionService(PizzaNightDbContext dbContext)
+public sealed class OrderSubmissionService(
+    PizzaNightDbContext dbContext,
+    ShopOperationsService shopOperationsService)
 {
-    private const int DeliveryFeePence = 250;
-    private const int ServiceFeePence = 50;
     private const int MaximumOrderLines = 50;
     private const int MaximumOrderQuantity = 50;
 
@@ -21,6 +21,17 @@ public sealed class OrderSubmissionService(PizzaNightDbContext dbContext)
         if (errors.Count > 0)
         {
             return OrderSubmissionResult.Invalid(errors);
+        }
+
+        var operations = await shopOperationsService.GetSnapshotAsync(cancellationToken);
+        if (!operations.IsAcceptingOrders)
+        {
+            return OrderSubmissionResult.Invalid([operations.StatusMessage]);
+        }
+
+        if (orderType == OrderType.Delivery && !operations.CoversPostcode(request.Postcode))
+        {
+            return OrderSubmissionResult.Invalid(["We do not currently deliver to this postcode."]);
         }
 
         var requestedProductSlugs = request.Items
@@ -85,8 +96,16 @@ public sealed class OrderSubmissionService(PizzaNightDbContext dbContext)
             return OrderSubmissionResult.Invalid(errors);
         }
 
-        var deliveryFeePence = orderType == OrderType.Delivery ? DeliveryFeePence : 0;
-        var totalPence = checked(subtotalPence + deliveryFeePence + ServiceFeePence);
+
+        if (orderType == OrderType.Delivery && subtotalPence < operations.Settings.DeliveryMinimumPence)
+        {
+            return OrderSubmissionResult.Invalid(
+                [$"Delivery orders require a minimum food subtotal of £{operations.Settings.DeliveryMinimumPence / 100m:0.00}."]);
+        }
+
+        var deliveryFeePence = orderType == OrderType.Delivery ? operations.Settings.DeliveryFeePence : 0;
+        var serviceFeePence = operations.Settings.ServiceFeePence;
+        var totalPence = checked(subtotalPence + deliveryFeePence + serviceFeePence);
         var order = new Order
         {
             OrderNumber = await CreateOrderNumberAsync(cancellationToken),
@@ -102,7 +121,7 @@ public sealed class OrderSubmissionService(PizzaNightDbContext dbContext)
             OrderNotes = NullIfWhiteSpace(request.OrderNotes),
             SubtotalPence = subtotalPence,
             DeliveryFeePence = deliveryFeePence,
-            ServiceFeePence = ServiceFeePence,
+            ServiceFeePence = serviceFeePence,
             TotalPence = totalPence,
             Items = orderItems
         };
@@ -110,13 +129,14 @@ public sealed class OrderSubmissionService(PizzaNightDbContext dbContext)
         dbContext.Orders.Add(order);
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        return OrderSubmissionResult.Accepted(order);
+        return OrderSubmissionResult.Accepted(order, operations.EstimatedTime(orderType));
     }
 
     private static List<string> ValidateRequest(CreateOrderRequest request, out OrderType orderType)
     {
         var errors = new List<string>();
-        if (!Enum.TryParse(request.OrderType, true, out orderType))
+        var hasValidOrderType = Enum.TryParse(request.OrderType, true, out orderType);
+        if (!hasValidOrderType)
         {
             errors.Add("Order type must be delivery or collection.");
         }
@@ -131,7 +151,7 @@ public sealed class OrderSubmissionService(PizzaNightDbContext dbContext)
             errors.Add($"An order cannot contain more than {MaximumOrderQuantity} items in total.");
         }
 
-        if (orderType == OrderType.Delivery)
+        if (hasValidOrderType && orderType == OrderType.Delivery)
         {
             if (string.IsNullOrWhiteSpace(request.Postcode))
             {
@@ -222,11 +242,11 @@ public sealed class OrderSubmissionService(PizzaNightDbContext dbContext)
     private sealed record ResolvedOption(ProductOptionGroup Group, ProductOption Option);
 }
 
-public sealed record OrderSubmissionResult(Order? Order, IReadOnlyList<string> Errors)
+public sealed record OrderSubmissionResult(Order? Order, IReadOnlyList<string> Errors, string? EstimatedTime)
 {
     public bool IsSuccess => Order is not null;
 
-    public static OrderSubmissionResult Accepted(Order order) => new(order, []);
+    public static OrderSubmissionResult Accepted(Order order, string estimatedTime) => new(order, [], estimatedTime);
 
-    public static OrderSubmissionResult Invalid(IReadOnlyList<string> errors) => new(null, errors);
+    public static OrderSubmissionResult Invalid(IReadOnlyList<string> errors) => new(null, errors, null);
 }

@@ -15,10 +15,12 @@
         <header class="admin-header">
             <a class="admin-brand" asp-controller="AdminOrders" asp-action="Index">
                 <img src="~/assets/images/pizza-knight-logo.png" alt="" width="52" height="52" />
-                <span><strong>Pizza Knight</strong><small>Order management</small></span>
+                <span><strong>Pizza Knight</strong><small>Shop management</small></span>
             </a>
             <nav aria-label="Admin navigation">
                 <a asp-controller="AdminOrders" asp-action="Index">Orders</a>
+                <a asp-controller="AdminMenu" asp-action="Index">Menu</a>
+                <a asp-controller="AdminOperations" asp-action="Index">Settings</a>
                 <a asp-controller="Home" asp-action="Index" target="_blank" rel="noopener">View website</a>
                 <form asp-controller="AdminAccount" asp-action="Logout" method="post">
                     <button type="submit">Sign out</button>
@@ -32,5 +34,12 @@
     </main>
 
     @await RenderSectionAsync("Scripts", required: false)
+    <script>
+        document.querySelectorAll("form[data-confirm]").forEach((form) => {
+            form.addEventListener("submit", (event) => {
+                if (!window.confirm(form.dataset.confirm)) event.preventDefault();
+            });
+        });
+    </script>
 </body>
 </html>

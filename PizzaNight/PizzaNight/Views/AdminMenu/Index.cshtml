@@ -1,0 +1,98 @@
+@model AdminMenuIndexViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Menu management";
+    var productCount = Model.Categories.Sum(category => category.Products.Count);
+}
+
+<div class="admin-container">
+    <header class="page-heading">
+        <div>
+            <p class="admin-eyebrow">Catalogue</p>
+            <h1>Menu management</h1>
+            <p>Control what customers see, what is available and how each item can be customised.</p>
+        </div>
+        <div class="page-actions">
+            <a class="admin-button admin-button--secondary" asp-action="CreateCategory">Add category</a>
+            <a class="admin-button admin-button--primary" asp-action="CreateProduct">Add product</a>
+        </div>
+    </header>
+
+    @if (TempData["Success"] is string success)
+    {
+        <div class="admin-alert admin-alert--success" role="status">@success</div>
+    }
+    @if (TempData["Error"] is string error)
+    {
+        <div class="admin-alert admin-alert--error" role="alert">@error</div>
+    }
+
+    <section class="menu-overview" aria-label="Menu overview">
+        <span><strong>@Model.Categories.Count</strong> categories</span>
+        <span><strong>@productCount</strong> products</span>
+        <span><strong>@Model.Categories.Sum(category => category.Products.Count(product => product.IsAvailable && category.IsActive))</strong> currently visible</span>
+    </section>
+
+    <div class="menu-category-list">
+        @foreach (var category in Model.Categories)
+        {
+            <section class="menu-category-card">
+                <header>
+                    <div>
+                        <div class="menu-category-title">
+                            <h2>@category.Name</h2>
+                            <span class="availability-pill @(category.IsActive ? "is-available" : "is-unavailable")">@(category.IsActive ? "Visible" : "Hidden")</span>
+                        </div>
+                        <p>/@category.Slug · Display order @category.DisplayOrder · @category.Products.Count product@(category.Products.Count == 1 ? "" : "s")</p>
+                    </div>
+                    <div class="compact-actions">
+                        <a asp-action="CreateProduct" asp-route-categoryId="@category.Id">Add product</a>
+                        <a asp-action="EditCategory" asp-route-id="@category.Id">Edit category</a>
+                        <form asp-action="ToggleCategory" asp-route-id="@category.Id" method="post">
+                            <button type="submit">@(category.IsActive ? "Hide" : "Show")</button>
+                        </form>
+                    </div>
+                </header>
+
+                @if (category.Products.Count == 0)
+                {
+                    <div class="menu-category-empty">No products in this category yet.</div>
+                }
+                else
+                {
+                    <div class="menu-product-list">
+                        @foreach (var product in category.Products)
+                        {
+                            <article class="menu-product-row @(product.IsAvailable ? null : "is-muted")">
+                                <img src="@product.ImagePath" alt="" width="72" height="72" />
+                                <div class="menu-product-main">
+                                    <div><strong>@product.Name</strong>@if (!string.IsNullOrWhiteSpace(product.Badge)) { <span class="product-badge">@product.Badge</span> }</div>
+                                    <small>@product.Description</small>
+                                    <span>/@product.Slug · Order @product.DisplayOrder</span>
+                                </div>
+                                <div class="menu-product-meta">
+                                    <strong>£@((product.BasePricePence / 100m).ToString("0.00"))</strong>
+                                    <span class="availability-pill @(product.IsAvailable ? "is-available" : "is-unavailable")">@(product.IsAvailable ? "Available" : "Sold out")</span>
+                                    @if (product.IsCustomisable)
+                                    {
+                                        <small>@product.OptionGroups.Count option group@(product.OptionGroups.Count == 1 ? "" : "s")</small>
+                                    }
+                                </div>
+                                <div class="menu-product-actions">
+                                    <a asp-action="EditProduct" asp-route-id="@product.Id">Edit</a>
+                                    @if (product.IsCustomisable)
+                                    {
+                                        <a asp-action="Options" asp-route-id="@product.Id">Options</a>
+                                    }
+                                    <form asp-action="ToggleProduct" asp-route-id="@product.Id" method="post">
+                                        <button type="submit">@(product.IsAvailable ? "Mark sold out" : "Make available")</button>
+                                    </form>
+                                </div>
+                            </article>
+                        }
+                    </div>
+                }
+            </section>
+        }
+    </div>
+</div>
