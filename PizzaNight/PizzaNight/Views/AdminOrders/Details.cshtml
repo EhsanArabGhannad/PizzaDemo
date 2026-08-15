@@ -1,0 +1,121 @@
+@model AdminOrderDetailsViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = $"Order {Model.Order.OrderNumber}";
+    var order = Model.Order;
+}
+
+<div class="admin-container admin-container--narrow">
+    <a class="back-link" asp-action="Index"><span aria-hidden="true">←</span> Back to orders</a>
+
+    @if (TempData["Success"] is string success)
+    {
+        <div class="admin-alert admin-alert--success" role="status">@success</div>
+    }
+    @if (TempData["Error"] is string error)
+    {
+        <div class="admin-alert admin-alert--error" role="alert">@error</div>
+    }
+
+    <header class="order-detail-heading">
+        <div>
+            <p class="admin-eyebrow">Order reference</p>
+            <h1>@order.OrderNumber</h1>
+            <p>Placed <time datetime="@order.CreatedAtUtc.ToString("O")">@order.CreatedAtUtc.ToLocalTime().ToString("dddd, dd MMMM yyyy 'at' HH:mm")</time></p>
+        </div>
+        <span class="status-pill status-pill--large @order.Status.ToCssClass()">@order.Status.ToDisplayName()</span>
+    </header>
+
+    <div class="order-detail-grid">
+        <section class="detail-card detail-card--items">
+            <div class="detail-card__heading"><h2>Order items</h2><span>@order.Type</span></div>
+            <div class="admin-order-items">
+                @foreach (var item in order.Items)
+                {
+                    <article>
+                        <div><strong>@item.Quantity × @item.ProductName</strong><span>£@((item.LineTotalPence / 100m).ToString("0.00"))</span></div>
+                        @if (item.Options.Count > 0)
+                        {
+                            <ul>
+                                @foreach (var option in item.Options)
+                                {
+                                    <li>@option.Name@(option.PriceAdjustmentPence > 0 ? $" (+£{option.PriceAdjustmentPence / 100m:0.00})" : "")</li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <small>Standard serving</small>
+                        }
+                    </article>
+                }
+            </div>
+            <dl class="order-totals">
+                <div><dt>Subtotal</dt><dd>£@((order.SubtotalPence / 100m).ToString("0.00"))</dd></div>
+                <div><dt>Delivery fee</dt><dd>@(order.DeliveryFeePence == 0 ? "Free" : $"£{order.DeliveryFeePence / 100m:0.00}")</dd></div>
+                <div><dt>Service fee</dt><dd>£@((order.ServiceFeePence / 100m).ToString("0.00"))</dd></div>
+                <div class="order-totals__total"><dt>Total</dt><dd>£@((order.TotalPence / 100m).ToString("0.00"))</dd></div>
+            </dl>
+        </section>
+
+        <aside class="order-detail-sidebar">
+            <section class="detail-card">
+                <h2>Customer</h2>
+                <dl class="detail-list">
+                    <div><dt>Name</dt><dd>@order.CustomerName</dd></div>
+                    <div><dt>Phone</dt><dd><a href="tel:@order.CustomerPhone">@order.CustomerPhone</a></dd></div>
+                    <div><dt>Email</dt><dd><a href="mailto:@order.CustomerEmail">@order.CustomerEmail</a></dd></div>
+                </dl>
+            </section>
+
+            <section class="detail-card">
+                <h2>@(order.Type == OrderType.Delivery ? "Delivery" : "Collection")</h2>
+                @if (order.Type == OrderType.Delivery)
+                {
+                    <address>@order.AddressLine<br />@order.Postcode</address>
+                }
+                else
+                {
+                    <p>The customer will collect this order from the shop.</p>
+                }
+                @if (!string.IsNullOrWhiteSpace(order.OrderNotes))
+                {
+                    <div class="order-note"><strong>Order note</strong><p>@order.OrderNotes</p></div>
+                }
+            </section>
+
+            <section class="detail-card status-card">
+                <h2>Update status</h2>
+                @if (Model.AvailableStatuses.Count > 0)
+                {
+                    <form asp-action="UpdateStatus" asp-route-id="@order.Id" method="post" data-status-form>
+                        <label for="status">Next stage</label>
+                        <select id="status" name="status" required>
+                            <option value="">Choose a status</option>
+                            @foreach (var status in Model.AvailableStatuses)
+                            {
+                                <option value="@status">@status.ToDisplayName()</option>
+                            }
+                        </select>
+                        <button class="admin-button admin-button--primary" type="submit">Update order</button>
+                    </form>
+                }
+                else
+                {
+                    <p>This order is closed and its status cannot be changed.</p>
+                }
+            </section>
+        </aside>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.querySelector("[data-status-form]")?.addEventListener("submit", (event) => {
+            const status = event.currentTarget.elements.status.value;
+            if (status === "Cancelled" && !window.confirm("Cancel this order? This cannot be reversed from the dashboard.")) {
+                event.preventDefault();
+            }
+        });
+    </script>
+}

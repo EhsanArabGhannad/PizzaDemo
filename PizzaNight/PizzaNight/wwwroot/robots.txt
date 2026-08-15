@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://www.pizzaknightconsett.co.uk/sitemap.xml

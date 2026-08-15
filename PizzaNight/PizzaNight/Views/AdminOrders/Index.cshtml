@@ -1,0 +1,86 @@
+@model AdminOrdersIndexViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Orders";
+}
+
+<div class="admin-container">
+    <header class="page-heading">
+        <div>
+            <p class="admin-eyebrow">Live operations</p>
+            <h1>Orders</h1>
+            <p>Review the latest 100 test orders and keep their status up to date.</p>
+        </div>
+        <a class="admin-button admin-button--secondary" asp-action="Index">Refresh orders</a>
+    </header>
+
+    @if (TempData["Success"] is string success)
+    {
+        <div class="admin-alert admin-alert--success" role="status">@success</div>
+    }
+
+    <section class="metric-grid" aria-label="Order overview">
+        <article><span>Waiting</span><strong>@Model.PendingCount</strong><small>Needs a decision</small></article>
+        <article><span>In progress</span><strong>@Model.ActiveCount</strong><small>Accepted or cooking</small></article>
+        <article><span>Completed today</span><strong>@Model.CompletedTodayCount</strong><small>Finished orders</small></article>
+        <article><span>Cancelled today</span><strong>@Model.CancelledTodayCount</strong><small>Stopped orders</small></article>
+    </section>
+
+    <nav class="order-filters" aria-label="Filter orders by status">
+        <a class="@(Model.ActiveStatus is null ? "is-active" : null)" asp-action="Index">All</a>
+        @foreach (var status in Enum.GetValues<OrderStatus>())
+        {
+            <a class="@(Model.ActiveStatus == status ? "is-active" : null)"
+               asp-action="Index"
+               asp-route-status="@status">@status.ToDisplayName()</a>
+        }
+    </nav>
+
+    <section class="orders-panel" aria-labelledby="orders-heading">
+        <div class="orders-panel__heading">
+            <h2 id="orders-heading">@(Model.ActiveStatus?.ToDisplayName() ?? "All orders")</h2>
+            <span>@Model.Orders.Count order@(Model.Orders.Count == 1 ? "" : "s")</span>
+        </div>
+
+        @if (Model.Orders.Count == 0)
+        {
+            <div class="admin-empty">
+                <span aria-hidden="true">♞</span>
+                <h3>No orders here yet</h3>
+                <p>New test orders will appear automatically after checkout.</p>
+            </div>
+        }
+        else
+        {
+            <div class="orders-table-wrap">
+                <table class="orders-table">
+                    <thead>
+                        <tr>
+                            <th>Order</th>
+                            <th>Customer</th>
+                            <th>Type</th>
+                            <th>Placed</th>
+                            <th>Status</th>
+                            <th>Total</th>
+                            <th><span class="visually-hidden">Open</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var order in Model.Orders)
+                    {
+                        <tr>
+                            <td data-label="Order"><strong>@order.OrderNumber</strong></td>
+                            <td data-label="Customer"><span>@order.CustomerName</span><small>@order.CustomerPhone</small></td>
+                            <td data-label="Type">@order.Type</td>
+                            <td data-label="Placed"><time datetime="@order.CreatedAtUtc.ToString("O")">@order.CreatedAtUtc.ToLocalTime().ToString("dd MMM, HH:mm")</time></td>
+                            <td data-label="Status"><span class="status-pill @order.Status.ToCssClass()">@order.Status.ToDisplayName()</span></td>
+                            <td data-label="Total"><strong>£@((order.TotalPence / 100m).ToString("0.00"))</strong></td>
+                            <td class="orders-table__action"><a asp-action="Details" asp-route-id="@order.Id">Open <span aria-hidden="true">→</span></a></td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+</div>

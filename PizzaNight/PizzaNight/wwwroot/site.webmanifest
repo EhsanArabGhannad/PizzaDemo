@@ -1,0 +1,18 @@
+{
+  "name": "Pizza Knight Concept Demo",
+  "short_name": "Pizza Knight",
+  "description": "A responsive concept ordering experience for Pizza Knight in Consett.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#fff8f1",
+  "theme_color": "#1b1110",
+  "icons": [
+    {
+      "src": "/assets/images/pizza-knight-logo.png",
+      "sizes": "1254x1254",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

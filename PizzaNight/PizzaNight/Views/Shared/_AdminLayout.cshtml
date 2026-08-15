@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#1b1110" />
+    <title>@ViewData["Title"] | Pizza Knight Admin</title>
+    <link rel="stylesheet" href="~/assets/css/admin.css" asp-append-version="true" />
+</head>
+<body>
+    <a class="admin-skip-link" href="#admin-content">Skip to content</a>
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <header class="admin-header">
+            <a class="admin-brand" asp-controller="AdminOrders" asp-action="Index">
+                <img src="~/assets/images/pizza-knight-logo.png" alt="" width="52" height="52" />
+                <span><strong>Pizza Knight</strong><small>Order management</small></span>
+            </a>
+            <nav aria-label="Admin navigation">
+                <a asp-controller="AdminOrders" asp-action="Index">Orders</a>
+                <a asp-controller="Home" asp-action="Index" target="_blank" rel="noopener">View website</a>
+                <form asp-controller="AdminAccount" asp-action="Logout" method="post">
+                    <button type="submit">Sign out</button>
+                </form>
+            </nav>
+        </header>
+    }
+
+    <main id="admin-content" class="admin-main">
+        @RenderBody()
+    </main>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,449 @@
+@{
+  Layout = null;
+}
+<!doctype html>
+<html lang="en">
+  <head>
+    <base href="/" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Explore the Pizza Knight concept demo: freshly prepared pizza, burgers, sides and meal deals for delivery or collection in Consett." />
+    <meta name="theme-color" content="#1b1110" />
+    <meta name="color-scheme" content="light" />
+    <meta name="robots" content="index, follow" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Pizza Knight" />
+    <meta property="og:title" content="Pizza Knight | Pizza Delivery in Consett" />
+    <meta property="og:description" content="Browse a polished concept menu, customise your pizza and try the complete demo ordering journey." />
+    <meta property="og:url" content="https://www.pizzaknightconsett.co.uk/" />
+    <meta property="og:image" content="https://www.pizzaknightconsett.co.uk/assets/images/pizza-knight-logo.png" />
+    <meta property="og:image:width" content="1254" />
+    <meta property="og:image:height" content="1254" />
+    <meta property="og:image:alt" content="Pizza Knight logo" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Pizza Knight | Pizza Delivery in Consett" />
+    <meta name="twitter:description" content="Explore the Pizza Knight menu and complete demo ordering journey." />
+    <meta name="twitter:image" content="https://www.pizzaknightconsett.co.uk/assets/images/pizza-knight-logo.png" />
+    <title>Pizza Knight | Pizza Delivery in Consett</title>
+    <link rel="canonical" href="https://www.pizzaknightconsett.co.uk/" />
+    <link rel="icon" href="assets/images/pizza-knight-logo.png" type="image/png" />
+    <link rel="apple-touch-icon" href="assets/images/pizza-knight-logo.png" />
+    <link rel="manifest" href="site.webmanifest" />
+    <link rel="preload" href="assets/images/pizza-hero.webp" as="image" type="image/webp" />
+    <link rel="stylesheet" href="assets/css/styles.css" />
+    <script src="assets/js/app.js" type="module"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+
+    <div class="demo-notice">
+      <div class="container demo-notice__inner">
+        <span>Concept website for Pizza Knight</span><span aria-hidden="true">•</span>
+        <span>No real orders are processed</span>
+      </div>
+    </div>
+
+    <header class="site-header">
+      <div class="container site-header__inner">
+        <a class="brand" href="./" aria-label="Pizza Knight home">
+          <span class="brand__crest" aria-hidden="true"><img src="assets/images/pizza-knight-logo.png" alt="" width="1254" height="1254" /></span>
+          <span class="brand__wordmark"><strong>Pizza Knight</strong><small>Consett takeaway</small></span>
+        </a>
+
+        <div class="site-header__actions">
+          <button class="mobile-basket" type="button" aria-label="Open basket, 0 items" data-basket-open>
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5.5 7h13l-1.2 8.1a2 2 0 0 1-2 1.7H8.7a2 2 0 0 1-2-1.7L5.5 7ZM4 4H2.5" /></svg>
+            <span class="cart-count" data-cart-count>0</span>
+          </button>
+          <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-navigation" aria-label="Open navigation" data-nav-toggle>
+            <span></span><span></span><span></span>
+          </button>
+        </div>
+
+        <nav class="primary-nav" id="primary-navigation" aria-label="Primary navigation" data-navigation>
+          <a class="primary-nav__link is-active" href="#main-content">Home</a>
+          <a class="primary-nav__link" href="#menu">Menu</a>
+          <a class="primary-nav__link" href="#menu">Deals</a>
+          <a class="primary-nav__link" href="#delivery">Delivery info</a>
+          <a class="primary-nav__link" href="#contact">Contact</a>
+          <button class="button button--header" type="button" data-basket-open>
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5.5 7h13l-1.2 8.1a2 2 0 0 1-2 1.7H8.7a2 2 0 0 1-2-1.7L5.5 7Zm3.2 13a1.3 1.3 0 1 0 0-2.6 1.3 1.3 0 0 0 0 2.6Zm6.8 0a1.3 1.3 0 1 0 0-2.6 1.3 1.3 0 0 0 0 2.6ZM4 4H2.5" /></svg>
+            Basket <span class="cart-count" data-cart-count aria-label="Basket items">0</span>
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero__glow" aria-hidden="true"></div>
+        <div class="container hero__layout">
+          <div class="hero__content">
+            <p class="eyebrow"><span class="eyebrow__icon" aria-hidden="true">♞</span>Your local pizza champion</p>
+            <h1 id="hero-title">Consett’s pizza night, <em>done right.</em></h1>
+            <p class="hero__intro">Freshly prepared pizzas, loaded sides and proper meal deals — ready for delivery or collection, seven days a week.</p>
+
+            <div class="hero__actions" aria-label="Choose an order type">
+              <a class="button button--primary" href="#menu">
+                <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M3 7h11v10H3V7Zm11 3h3l3 3v4h-6v-7ZM7 20a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm10 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" /></svg>
+                Order for delivery
+              </a>
+              <a class="button button--secondary" href="#menu">
+                <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 10h16l-1 10H5L4 10Zm3-4a5 5 0 0 1 10 0v4H7V6Z" /></svg>
+                Order for collection
+              </a>
+            </div>
+
+            <div class="hero__facts" aria-label="Ordering information">
+              <div class="hero-fact"><span class="hero-fact__status" aria-hidden="true"></span><span><small>Today</small><strong>Open now</strong></span></div>
+              <div class="hero-fact">
+                <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
+                <span><small>Estimated delivery</small><strong>35–50 mins</strong></span>
+              </div>
+              <div class="hero-fact">
+                <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21s7-5.2 7-12a7 7 0 1 0-14 0c0 6.8 7 12 7 12Z" /><circle cx="12" cy="9" r="2.2" /></svg>
+                <span><small>Delivering around</small><strong>Consett</strong></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="hero__visual" aria-hidden="true">
+            <picture>
+              <source srcset="assets/images/pizza-hero.webp" type="image/webp" />
+              <img src="assets/images/pizza-hero.png" width="1792" height="1024" alt="" fetchpriority="high" />
+            </picture>
+            <div class="hero__offer-card"><span>Tonight’s pick</span><strong>Pepperoni Feast</strong><small>Demo menu item</small></div>
+          </div>
+        </div>
+
+        <div class="container hero__assurance" aria-label="Service benefits">
+          <span><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6" /></svg>Made fresh to order</span>
+          <span><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6" /></svg>Secure online checkout</span>
+          <span><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6" /></svg>Direct local ordering</span>
+        </div>
+      </section>
+
+      <section class="menu-section" id="menu" aria-labelledby="menu-title">
+        <div class="container">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Made for your cravings</p>
+              <h2 id="menu-title">Popular right now</h2>
+            </div>
+            <p>Start with a favourite or browse the full demo menu by category.</p>
+          </div>
+
+          <div class="category-filter" role="group" aria-label="Filter menu by category" data-category-filter></div>
+
+          <div class="product-grid" data-product-grid aria-live="polite"></div>
+
+          <div class="menu-footer">
+            <p><strong>8 demo items</strong> from a much larger menu.</p>
+            <button class="button button--outline" type="button" data-show-all>View all popular items</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="delivery-section" id="delivery" aria-labelledby="delivery-title">
+        <div class="container">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Plan your pizza night</p>
+              <h2 id="delivery-title">Delivery or collection, your call.</h2>
+            </div>
+            <p>Choose the option that suits your evening. Times and coverage below are illustrative for this concept demo.</p>
+          </div>
+
+          <div class="fulfilment-grid">
+            <article class="fulfilment-card">
+              <span class="fulfilment-card__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M3 7h11v10H3V7Zm11 3h3l3 3v4h-6v-7ZM7 20a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm10 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" /></svg>
+              </span>
+              <p class="eyebrow">To your door</p>
+              <h3>Delivery</h3>
+              <p>Prepared fresh and delivered around Consett in an estimated 35–50 minutes.</p>
+              <strong>£2.50 delivery fee</strong>
+            </article>
+
+            <article class="fulfilment-card">
+              <span class="fulfilment-card__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M4 10h16l-1 10H5L4 10Zm3-4a5 5 0 0 1 10 0v4H7V6Z" /></svg>
+              </span>
+              <p class="eyebrow">Pick it up</p>
+              <h3>Collection</h3>
+              <p>Skip the delivery fee and collect your order in an estimated 20–30 minutes.</p>
+              <strong>Free collection</strong>
+            </article>
+
+            <article class="fulfilment-card">
+              <span class="fulfilment-card__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M7 3h10v18H7V3Zm3 4h4M10 11h4M10 15h2" /></svg>
+              </span>
+              <p class="eyebrow">Simple pricing</p>
+              <h3>Order fees</h3>
+              <p>A fixed service fee applies once to each non-empty online order, not to every item.</p>
+              <strong>£0.50 per order</strong>
+            </article>
+          </div>
+
+          <aside class="delivery-note" aria-label="Demo delivery coverage note">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21s7-5.2 7-12a7 7 0 1 0-14 0c0 6.8 7 12 7 12Z" /><circle cx="12" cy="9" r="2.2" /></svg>
+            <div><strong>Demo coverage: Consett</strong><span>A production website would check the customer’s postcode before confirming delivery.</span></div>
+            <a href="#menu">Browse the menu</a>
+          </aside>
+        </div>
+      </section>
+
+      <section class="contact-section" id="contact" aria-labelledby="contact-title">
+        <div class="container contact-layout">
+          <div class="contact-copy">
+            <p class="eyebrow">Visit or call</p>
+            <h2 id="contact-title">Your local Pizza Knight.</h2>
+            <p>Find us in the centre of Consett, call the shop directly or open turn-by-turn directions.</p>
+            <ul class="contact-points">
+              <li><span aria-hidden="true">✓</span>Delivery and collection available</li>
+              <li><span aria-hidden="true">✓</span>Freshly prepared to order</li>
+              <li><span aria-hidden="true">✓</span>Call the shop for current menu information</li>
+            </ul>
+          </div>
+
+          <aside class="business-card" aria-label="Pizza Knight contact details">
+            <div class="business-card__details">
+              <div class="business-card__item">
+                <span class="business-card__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M12 21s7-5.2 7-12a7 7 0 1 0-14 0c0 6.8 7 12 7 12Z" /><circle cx="12" cy="9" r="2.2" /></svg>
+                </span>
+                <div><small>Address</small><strong>4 John Street Square</strong><span>Consett, DH8 5AR</span></div>
+              </div>
+              <div class="business-card__item">
+                <span class="business-card__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M7.2 3.5 10 8l-2 2.3a15.6 15.6 0 0 0 5.7 5.7l2.3-2 4.5 2.8-.8 3.2c-.2.7-.8 1.1-1.5 1-8-.8-14.4-7.2-15.2-15.2-.1-.7.3-1.3 1-1.5l3.2-.8Z" /></svg>
+                </span>
+                <div><small>Phone</small><a href="tel:+441207437590">01207 437 590</a><span>Call for menu and opening updates</span></div>
+              </div>
+              <div class="business-card__item">
+                <span class="business-card__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" /><path d="M12 7v5l3 2" /></svg>
+                </span>
+                <div><small>Published hours</small><strong>5:00pm–11:00pm</strong><span>Closed Tuesday · Fri &amp; Sat until 11:30pm</span></div>
+              </div>
+            </div>
+            <div class="business-card__actions">
+              <a class="button button--primary" href="tel:+441207437590">Call the shop</a>
+              <a class="button button--outline" href="https://www.google.com/maps/dir/?api=1&amp;destination=54.85391650,-1.83203480" target="_blank" rel="noopener">Get directions</a>
+            </div>
+            <p class="business-card__note">Opening times shown here come from the latest published business listing and should be confirmed before the live launch.</p>
+          </aside>
+        </div>
+      </section>
+
+      <div class="toast" role="status" aria-live="polite" aria-atomic="true" data-toast></div>
+    </main>
+
+    <dialog class="customizer" aria-labelledby="customizer-title" data-customizer>
+      <form class="customizer__panel" data-customizer-form>
+        <header class="customizer__header">
+          <div class="customizer__product">
+            <img src="assets/images/menu-supreme-pizza.webp" alt="" width="96" height="96" data-customizer-image />
+            <div>
+              <p class="eyebrow">Build your pizza</p>
+              <h2 id="customizer-title" data-customizer-name>Pizza</h2>
+              <p data-customizer-description></p>
+            </div>
+          </div>
+          <button class="customizer__close" type="button" aria-label="Close customisation" data-customizer-close>
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18" /></svg>
+          </button>
+        </header>
+
+        <div class="customizer__content">
+          <fieldset class="option-group">
+            <legend><span>1</span> Choose your size <small>Required</small></legend>
+            <div class="option-grid option-grid--three">
+              <label class="choice-card"><input type="radio" name="pizza-size" value="small" data-price="0" checked /><span><strong>10 inch</strong><small>Small</small></span><b>Included</b></label>
+              <label class="choice-card"><input type="radio" name="pizza-size" value="medium" data-price="2" /><span><strong>12 inch</strong><small>Medium</small></span><b>+£2.00</b></label>
+              <label class="choice-card"><input type="radio" name="pizza-size" value="large" data-price="4" /><span><strong>14 inch</strong><small>Large</small></span><b>+£4.00</b></label>
+            </div>
+          </fieldset>
+
+          <fieldset class="option-group">
+            <legend><span>2</span> Choose your crust <small>Required</small></legend>
+            <div class="option-grid option-grid--three">
+              <label class="choice-card"><input type="radio" name="pizza-crust" value="classic" data-price="0" checked /><span><strong>Classic</strong><small>Soft & golden</small></span><b>Included</b></label>
+              <label class="choice-card"><input type="radio" name="pizza-crust" value="thin" data-price="0" /><span><strong>Thin</strong><small>Light & crispy</small></span><b>Included</b></label>
+              <label class="choice-card"><input type="radio" name="pizza-crust" value="stuffed" data-price="2.5" /><span><strong>Stuffed</strong><small>Cheese-filled edge</small></span><b>+£2.50</b></label>
+            </div>
+          </fieldset>
+
+          <fieldset class="option-group">
+            <legend><span>3</span> Add extras <small>Optional</small></legend>
+            <div class="option-grid">
+              <label class="choice-card choice-card--checkbox"><input type="checkbox" name="pizza-extra" value="extra-cheese" data-price="1.2" /><span><strong>Extra cheese</strong><small>More mozzarella</small></span><b>+£1.20</b></label>
+              <label class="choice-card choice-card--checkbox"><input type="checkbox" name="pizza-extra" value="pepperoni" data-price="1.5" /><span><strong>Pepperoni</strong><small>Extra portion</small></span><b>+£1.50</b></label>
+              <label class="choice-card choice-card--checkbox"><input type="checkbox" name="pizza-extra" value="mushrooms" data-price="0.8" /><span><strong>Mushrooms</strong><small>Freshly sliced</small></span><b>+£0.80</b></label>
+              <label class="choice-card choice-card--checkbox"><input type="checkbox" name="pizza-extra" value="jalapenos" data-price="0.7" /><span><strong>Jalapeños</strong><small>Add some heat</small></span><b>+£0.70</b></label>
+            </div>
+          </fieldset>
+        </div>
+
+        <footer class="customizer__footer">
+          <div class="quantity-control" aria-label="Quantity selector">
+            <button type="button" aria-label="Decrease quantity" data-quantity-change="-1">−</button>
+            <output aria-live="polite" data-quantity>1</output>
+            <button type="button" aria-label="Increase quantity" data-quantity-change="1">+</button>
+          </div>
+          <button class="button button--primary customizer__add" type="submit"><span>Add to basket</span><strong data-customizer-total>£0.00</strong></button>
+        </footer>
+      </form>
+    </dialog>
+
+    <dialog class="basket-drawer" aria-labelledby="basket-title" data-basket>
+      <div class="basket-drawer__panel">
+        <header class="basket-drawer__header">
+          <div><p class="eyebrow">Your order</p><h2 id="basket-title">Basket</h2></div>
+          <button class="customizer__close" type="button" aria-label="Close basket" data-basket-close>
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18" /></svg>
+          </button>
+        </header>
+
+        <div class="order-type" role="group" aria-label="Choose order type">
+          <button class="order-type__button is-active" type="button" data-order-type="delivery" aria-pressed="true">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M3 7h11v10H3V7Zm11 3h3l3 3v4h-6v-7ZM7 20a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm10 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" /></svg>Delivery
+          </button>
+          <button class="order-type__button" type="button" data-order-type="collection" aria-pressed="false">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 10h16l-1 10H5L4 10Zm3-4a5 5 0 0 1 10 0v4H7V6Z" /></svg>Collection
+          </button>
+        </div>
+
+        <div class="basket-drawer__content">
+          <div class="basket-empty" data-basket-empty>
+            <span aria-hidden="true">♞</span><h3>Your basket is empty</h3>
+            <p>Add a Pizza Knight favourite to get started.</p>
+            <button class="button button--outline" type="button" data-basket-browse>Browse the menu</button>
+          </div>
+          <div class="basket-items" data-basket-items></div>
+        </div>
+
+        <footer class="basket-summary">
+          <dl>
+            <div><dt>Subtotal</dt><dd data-basket-subtotal>£0.00</dd></div>
+            <div><dt>Delivery fee</dt><dd data-delivery-fee>£0.00</dd></div>
+            <div class="basket-summary__service"><dt>Service fee <button type="button" aria-label="About the 50 pence service fee" data-fee-info>?</button></dt><dd data-service-fee>£0.00</dd></div>
+            <div class="basket-summary__total"><dt>Total</dt><dd data-basket-total>£0.00</dd></div>
+          </dl>
+          <p class="basket-summary__note" data-basket-note>Add items to see your order total.</p>
+          <button class="basket-summary__clear" type="button" data-basket-clear hidden>Clear basket</button>
+          <button class="button button--primary basket-summary__checkout" type="button" data-checkout disabled>Continue to checkout <strong data-checkout-total>£0.00</strong></button>
+        </footer>
+      </div>
+    </dialog>
+
+    <dialog class="checkout-preview" aria-labelledby="checkout-preview-title" data-checkout-dialog>
+      <form class="checkout-preview__panel" data-checkout-form>
+        <header class="checkout-preview__header">
+          <div><p class="eyebrow">Final step</p><h2 id="checkout-preview-title">Test checkout</h2></div>
+          <button class="customizer__close" type="button" aria-label="Close checkout" data-checkout-close>
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18" /></svg>
+          </button>
+        </header>
+
+        <div class="checkout-preview__content">
+          <div class="checkout-demo-note">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3 4 6v5c0 5.2 3.4 8.4 8 10 4.6-1.6 8-4.8 8-10V6l-8-3Zm-3 9 2 2 4-5" /></svg>
+            <p><strong>Development test order</strong><span>Your details are saved in this site's local database. No payment is taken and the restaurant is not notified.</span></p>
+          </div>
+
+          <div class="checkout-preview__layout">
+            <div class="checkout-preview__fields">
+              <fieldset class="checkout-group">
+                <legend>Contact details</legend>
+                <div class="checkout-form__row">
+                  <label class="form-field"><span>Name</span><input type="text" name="checkout-name" autocomplete="name" required /></label>
+                  <label class="form-field"><span>Email</span><input type="email" name="checkout-email" autocomplete="email" required /></label>
+                </div>
+                <label class="form-field"><span>Mobile number</span><input type="tel" name="checkout-phone" autocomplete="tel" inputmode="tel" required /></label>
+              </fieldset>
+
+              <fieldset class="checkout-group" data-checkout-delivery>
+                <legend>Delivery details</legend>
+                <div class="checkout-form__row">
+                  <label class="form-field"><span>Postcode</span><input type="text" name="checkout-postcode" autocomplete="postal-code" /></label>
+                  <label class="form-field"><span>Address line</span><input type="text" name="checkout-address" autocomplete="street-address" /></label>
+                </div>
+                <p>Coverage is currently limited to the test flow; no postcode lookup is performed yet.</p>
+              </fieldset>
+
+              <div class="checkout-collection-card" data-checkout-collection hidden>
+                <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 10h16l-1 10H5L4 10Zm3-4a5 5 0 0 1 10 0v4H7V6Z" /></svg>
+                <div><strong>Collection selected</strong><span>Your demo order would be ready in approximately 20–30 minutes.</span></div>
+              </div>
+
+              <div class="checkout-payment-note">
+                <span aria-hidden="true">🔒</span>
+                <div><strong>Payment disabled</strong><p>This step records a test order only. Online payment will be connected later.</p></div>
+              </div>
+
+              <label class="form-field"><span>Order notes <small>(optional)</small></span><textarea name="checkout-notes" rows="3" placeholder="Allergy note, delivery instruction or kitchen request"></textarea></label>
+            </div>
+
+            <aside class="checkout-order-summary" aria-label="Checkout order summary">
+              <div class="checkout-order-summary__heading"><h3>Your order</h3><span data-checkout-preview-type>Delivery</span></div>
+              <div class="checkout-order-items" data-checkout-preview-items></div>
+              <dl>
+                <div><dt>Subtotal</dt><dd data-checkout-preview-subtotal>£0.00</dd></div>
+                <div><dt>Delivery fee</dt><dd data-checkout-preview-delivery>£0.00</dd></div>
+                <div><dt>Service fee</dt><dd data-checkout-preview-service>£0.00</dd></div>
+                <div class="checkout-order-summary__total"><dt>Total</dt><dd data-checkout-preview-total>£0.00</dd></div>
+              </dl>
+            </aside>
+          </div>
+        </div>
+
+        <footer class="checkout-preview__footer">
+          <p>This saves a test order locally; it is not sent to the restaurant.</p>
+          <button class="button button--primary" type="submit"><span data-checkout-submit-label>Save test order</span> <strong data-checkout-submit-total>£0.00</strong></button>
+        </footer>
+      </form>
+    </dialog>
+
+    <dialog class="order-confirmation" aria-labelledby="order-confirmation-title" data-confirmation-dialog>
+      <div class="order-confirmation__panel">
+        <div class="order-confirmation__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="m6.5 12.5 3.5 3.5 7.5-8" /></svg>
+        </div>
+        <p class="eyebrow">Test order saved</p>
+        <h2 id="order-confirmation-title">Thanks, <span data-confirmation-name>pizza fan</span>!</h2>
+        <p class="order-confirmation__intro">Your order was saved to the development database. No payment was taken and it was not sent to the restaurant.</p>
+
+        <div class="order-confirmation__meta">
+          <span>Order reference<strong data-confirmation-number>PK-000000</strong></span>
+          <span><span data-confirmation-type-label>Estimated delivery</span><strong data-confirmation-eta>35–50 mins</strong></span>
+        </div>
+
+        <div class="order-confirmation__summary">
+          <div class="order-confirmation__summary-heading">
+            <h3>Order summary</h3>
+            <span data-confirmation-type>Delivery</span>
+          </div>
+          <div class="checkout-order-items" data-confirmation-items></div>
+          <dl>
+            <div><dt>Subtotal</dt><dd data-confirmation-subtotal>£0.00</dd></div>
+            <div><dt>Delivery fee</dt><dd data-confirmation-delivery>£0.00</dd></div>
+            <div><dt>Service fee</dt><dd data-confirmation-service>£0.00</dd></div>
+            <div class="order-confirmation__total"><dt>Total</dt><dd data-confirmation-total>£0.00</dd></div>
+          </dl>
+        </div>
+
+        <button class="button button--primary" type="button" data-confirmation-close>Back to the menu</button>
+        <small>This is still a development workflow, not a live takeaway order.</small>
+      </div>
+    </dialog>
+
+    <footer class="site-footer">
+      <div class="container site-footer__inner">
+        <span class="brand brand--footer"><span class="brand__crest" aria-hidden="true"><img src="assets/images/pizza-knight-logo.png" alt="" width="1254" height="1254" loading="lazy" /></span><span class="brand__wordmark"><strong>Pizza Knight</strong><small>Concept demo</small></span></span>
+        <small>&copy; <span data-current-year></span> Pizza Knight demo. No real orders are processed.</small>
+      </div>
+    </footer>
+  </body>
+</html>

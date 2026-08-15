@@ -1,4 +1,5 @@
-import { categories, products } from "./products.js";
+let categories = [];
+let products = [];
 
 const yearElement = document.querySelector("[data-current-year]");
 const navToggle = document.querySelector("[data-nav-toggle]");
@@ -43,6 +44,8 @@ const checkoutPreviewDelivery = document.querySelector("[data-checkout-preview-d
 const checkoutPreviewService = document.querySelector("[data-checkout-preview-service]");
 const checkoutPreviewTotal = document.querySelector("[data-checkout-preview-total]");
 const checkoutSubmitTotal = document.querySelector("[data-checkout-submit-total]");
+const checkoutSubmitButton = checkoutForm?.querySelector('button[type="submit"]');
+const checkoutSubmitLabel = document.querySelector("[data-checkout-submit-label]");
 const confirmationDialog = document.querySelector("[data-confirmation-dialog]");
 const confirmationCloseButton = document.querySelector("[data-confirmation-close]");
 const confirmationName = document.querySelector("[data-confirmation-name]");
@@ -59,12 +62,38 @@ const feeInfoButton = document.querySelector("[data-fee-info]");
 
 const SERVICE_FEE = 0.5;
 const DELIVERY_FEE = 2.5;
-const BASKET_STORAGE_KEY = "pizza-knight-basket-v1";
+const BASKET_STORAGE_KEY = "pizza-knight-basket-v2";
 
 const currencyFormatter = new Intl.NumberFormat("en-GB", {
   style: "currency",
   currency: "GBP",
 });
+
+async function loadMenuData() {
+  try {
+    const response = await fetch("/api/menu", {
+      headers: { Accept: "application/json" },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Menu request failed with status ${response.status}.`);
+    }
+
+    const menu = await response.json();
+    if (!Array.isArray(menu.categories) || !Array.isArray(menu.products)) {
+      throw new Error("Menu response has an invalid shape.");
+    }
+
+    categories = menu.categories;
+    products = menu.products;
+  } catch (error) {
+    console.error("Could not load the database menu; using the local fallback.", error);
+    const fallback = await import("./products.js");
+    categories = fallback.categories;
+    products = fallback.products;
+    showToast("The live menu is temporarily unavailable. Showing the saved menu.");
+  }
+}
 
 let activeCategory = "all";
 let showAllPopular = false;
@@ -116,25 +145,30 @@ desktopNavigation.addEventListener("change", () => setNavigationState(false));
 
 function productCardTemplate(product) {
   const actionLabel = product.customisable ? "Customise" : "Add";
+  const productId = escapeHtml(product.id);
+  const productCategory = escapeHtml(product.category);
+  const productName = escapeHtml(product.name);
+  const productDescription = escapeHtml(product.description);
+  const productImage = escapeHtml(product.image);
   const actionIcon = product.customisable
     ? '<path d="M4 7h10M17 7h3M4 17h3M10 17h10M14 4v6M7 14v6" />'
     : '<path d="M12 5v14M5 12h14" />';
 
   return `
-    <article class="product-card" data-category="${product.category}" data-product-id="${product.id}">
+    <article class="product-card" data-category="${productCategory}" data-product-id="${productId}">
       <div class="product-card__media">
-        <img class="product-card__image" src="${product.image}" alt="${product.name}" width="720" height="720" loading="lazy" />
-        ${product.badge ? `<span class="product-card__badge">${product.badge}</span>` : ""}
+        <img class="product-card__image" src="${productImage}" alt="${productName}" width="720" height="720" loading="lazy" />
+        ${product.badge ? `<span class="product-card__badge">${escapeHtml(product.badge)}</span>` : ""}
       </div>
       <div class="product-card__body">
         <div class="product-card__heading">
-          <h3 class="product-card__title">${product.name}</h3>
+          <h3 class="product-card__title">${productName}</h3>
           <span class="product-card__price">From ${currencyFormatter.format(product.price)}</span>
         </div>
-        <p class="product-card__description">${product.description}</p>
+        <p class="product-card__description">${productDescription}</p>
         <div class="product-card__footer">
           <span class="product-card__note">${product.customisable ? "Choose size & extras" : "Quick add"}</span>
-          <button class="product-card__button" type="button" data-product-action="${product.id}" aria-label="${actionLabel} ${product.name}">
+          <button class="product-card__button" type="button" data-product-action="${productId}" aria-label="${actionLabel} ${productName}">
             <svg aria-hidden="true" viewBox="0 0 24 24">${actionIcon}</svg>
             ${actionLabel}
           </button>
@@ -152,9 +186,9 @@ function renderCategoryButtons() {
         <button
           class="category-button${category.id === activeCategory ? " is-active" : ""}"
           type="button"
-          data-category-id="${category.id}"
+          data-category-id="${escapeHtml(category.id)}"
           aria-pressed="${category.id === activeCategory}"
-        >${category.label}</button>`,
+        >${escapeHtml(category.label)}</button>`,
     )
     .join("");
 }
@@ -197,6 +231,48 @@ function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, (character) => characters[character]);
 }
 
+function normaliseSelections(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+
+  return Object.fromEntries(
+    Object.entries(value)
+      .filter(([group, options]) => typeof group === "string" && group.length <= 80 && Array.isArray(options))
+      .slice(0, 20)
+      .map(([group, options]) => [
+        group,
+        [...new Set(options.filter((option) => typeof option === "string" && option.length <= 120))].slice(0, 20),
+      ]),
+  );
+}
+
+function resolveCartConfiguration(product, selections) {
+  if (!product.customisable) {
+    return { unitPrice: product.price, details: "Standard serving" };
+  }
+
+  if (!Array.isArray(product.optionGroups)) return null;
+
+  let unitPrice = Number(product.price);
+  const labels = [];
+
+  for (const group of product.optionGroups) {
+    const selectedIds = selections[group.id] ?? [];
+    if (selectedIds.length < group.minimumSelections || selectedIds.length > group.maximumSelections) return null;
+
+    for (const selectedId of selectedIds) {
+      const option = group.options.find((candidate) => candidate.id === selectedId);
+      if (!option) return null;
+      unitPrice += Number(option.price);
+      labels.push(option.name);
+    }
+  }
+
+  return {
+    unitPrice: Number(unitPrice.toFixed(2)),
+    details: labels.join(" · ") || "Standard serving",
+  };
+}
+
 function restoreBasketState() {
   try {
     const storedState = JSON.parse(window.localStorage.getItem(BASKET_STORAGE_KEY) ?? "null");
@@ -208,12 +284,13 @@ function restoreBasketState() {
     storedState.items.forEach((storedItem) => {
       const product = products.find((item) => item.id === storedItem?.productId);
       const quantity = Number(storedItem?.quantity);
-      const unitPrice = Number(storedItem?.unitPrice);
       const key = typeof storedItem?.key === "string" ? storedItem.key.slice(0, 100) : "";
 
       if (!product || !key || seenKeys.has(key)) return;
       if (!Number.isInteger(quantity) || quantity < 1 || quantity > 10) return;
-      if (!Number.isFinite(unitPrice) || unitPrice <= 0 || unitPrice > 1000) return;
+      const selections = normaliseSelections(storedItem?.selections);
+      const configuration = resolveCartConfiguration(product, selections);
+      if (!configuration) return;
 
       seenKeys.add(key);
       restoredItems.push({
@@ -221,9 +298,10 @@ function restoreBasketState() {
         productId: product.id,
         name: product.name,
         image: product.image,
-        unitPrice: Number(unitPrice.toFixed(2)),
+        unitPrice: configuration.unitPrice,
         quantity,
-        details: typeof storedItem.details === "string" ? storedItem.details.slice(0, 200) : "Standard serving",
+        details: configuration.details,
+        selections,
       });
     });
 
@@ -332,6 +410,7 @@ function addQuickProduct(product) {
       unitPrice: product.price,
       quantity: 1,
       details: "Standard serving",
+      selections: {},
     });
   }
 
@@ -391,17 +470,13 @@ function closeCheckout() {
   if (checkoutDialog?.open) checkoutDialog.close();
 }
 
-function createDemoOrderReference() {
-  return `PK-${String(Date.now()).slice(-6)}`;
-}
-
-function renderConfirmation({ customerName, items, type, totals }) {
+function renderConfirmation({ customerName, items, type, totals, orderNumber, estimatedTime }) {
   const isDelivery = type === "delivery";
 
   if (confirmationName) confirmationName.textContent = customerName || "pizza fan";
-  if (confirmationNumber) confirmationNumber.textContent = createDemoOrderReference();
+  if (confirmationNumber) confirmationNumber.textContent = orderNumber;
   if (confirmationTypeLabel) confirmationTypeLabel.textContent = isDelivery ? "Estimated delivery" : "Ready to collect";
-  if (confirmationEta) confirmationEta.textContent = isDelivery ? "35–50 mins" : "20–30 mins";
+  if (confirmationEta) confirmationEta.textContent = estimatedTime;
   if (confirmationType) confirmationType.textContent = isDelivery ? "Delivery" : "Collection";
   if (confirmationItems) confirmationItems.innerHTML = items.map(checkoutItemTemplate).join("");
   if (confirmationSubtotal) confirmationSubtotal.textContent = currencyFormatter.format(totals.subtotal);
@@ -522,9 +597,13 @@ customizerForm?.addEventListener("submit", (event) => {
   const extraLabels = { "extra-cheese": "Extra cheese", pepperoni: "Extra pepperoni", mushrooms: "Mushrooms", jalapenos: "Jalapeños" };
   const size = customizerForm.querySelector('input[name="pizza-size"]:checked')?.value;
   const crust = customizerForm.querySelector('input[name="pizza-crust"]:checked')?.value;
-  const extras = [...customizerForm.querySelectorAll('input[name="pizza-extra"]:checked')]
-    .map((input) => extraLabels[input.value]);
-  const unitPrice = calculateCustomisedPrice() / selectedQuantity;
+  const extraIds = [...customizerForm.querySelectorAll('input[name="pizza-extra"]:checked')]
+    .map((input) => input.value);
+  const selections = { size: [size], crust: [crust], extras: extraIds };
+  const configuration = resolveCartConfiguration(selectedProduct, selections);
+  const unitPrice = configuration?.unitPrice ?? calculateCustomisedPrice() / selectedQuantity;
+  const details = configuration?.details
+    ?? [sizeLabels[size], crustLabels[crust], ...extraIds.map((extra) => extraLabels[extra])].join(" · ");
 
   cartItems.push({
     key: `${selectedProduct.id}-${Date.now()}`,
@@ -533,7 +612,8 @@ customizerForm?.addEventListener("submit", (event) => {
     image: selectedProduct.image,
     unitPrice: Number(unitPrice.toFixed(2)),
     quantity: selectedQuantity,
-    details: [sizeLabels[size], crustLabels[crust], ...extras].join(" · "),
+    details,
+    selections,
   });
   renderBasket();
   showToast(`${selectedQuantity} × ${selectedProduct.name} added to your demo basket.`);
@@ -608,24 +688,80 @@ checkoutDialog?.addEventListener("close", () => {
 
 checkoutDialog?.addEventListener("cancel", syncModalState);
 
-checkoutForm?.addEventListener("submit", (event) => {
+checkoutForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
 
-  const customerName = checkoutForm.elements.namedItem("checkout-name")?.value.trim().split(/\s+/)[0];
-  const confirmationData = {
-    customerName,
-    items: cartItems.map((item) => ({ ...item })),
-    type: orderType,
-    totals: getBasketTotals(),
-  };
+  if (!cartItems.length || !checkoutSubmitButton) return;
 
-  renderConfirmation(confirmationData);
-  checkoutIsCompleting = true;
-  closeCheckout();
-  cartItems = [];
-  renderBasket();
-  confirmationDialog?.showModal();
-  syncModalState();
+  const formData = new FormData(checkoutForm);
+  const customerName = String(formData.get("checkout-name") ?? "").trim();
+  const submittedItems = cartItems.map((item) => ({
+    productId: item.productId,
+    quantity: item.quantity,
+    selections: item.selections,
+  }));
+  const confirmationItemsSnapshot = cartItems.map((item) => ({ ...item }));
+  const submittedOrderType = orderType;
+
+  checkoutSubmitButton.disabled = true;
+  checkoutSubmitButton.setAttribute("aria-busy", "true");
+  if (checkoutSubmitLabel) checkoutSubmitLabel.textContent = "Saving test order…";
+
+  try {
+    const response = await fetch("/api/orders", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        customerName,
+        customerEmail: String(formData.get("checkout-email") ?? "").trim(),
+        customerPhone: String(formData.get("checkout-phone") ?? "").trim(),
+        orderType: submittedOrderType,
+        postcode: String(formData.get("checkout-postcode") ?? "").trim() || null,
+        addressLine: String(formData.get("checkout-address") ?? "").trim() || null,
+        orderNotes: String(formData.get("checkout-notes") ?? "").trim() || null,
+        items: submittedItems,
+      }),
+    });
+
+    const result = await response.json().catch(() => null);
+    if (!response.ok) {
+      const serverMessage = result?.errors
+        ? Object.values(result.errors).flat().find(Boolean)
+        : null;
+      throw new Error(serverMessage || "The test order could not be saved. Please try again.");
+    }
+
+    renderConfirmation({
+      customerName: customerName.split(/\s+/)[0],
+      items: confirmationItemsSnapshot,
+      type: result.type,
+      orderNumber: result.orderNumber,
+      estimatedTime: result.estimatedTime,
+      totals: {
+        subtotal: result.subtotal,
+        deliveryFee: result.deliveryFee,
+        serviceFee: result.serviceFee,
+        total: result.total,
+      },
+    });
+
+    checkoutIsCompleting = true;
+    closeCheckout();
+    cartItems = [];
+    renderBasket();
+    confirmationDialog?.showModal();
+    syncModalState();
+  } catch (error) {
+    console.error("Could not submit the test order.", error);
+    showToast(error instanceof Error ? error.message : "The test order could not be saved.");
+  } finally {
+    checkoutSubmitButton.disabled = false;
+    checkoutSubmitButton.removeAttribute("aria-busy");
+    if (checkoutSubmitLabel) checkoutSubmitLabel.textContent = "Save test order";
+  }
 });
 
 confirmationCloseButton?.addEventListener("click", () => {
@@ -640,7 +776,12 @@ confirmationDialog?.addEventListener("click", (event) => {
 confirmationDialog?.addEventListener("close", syncModalState);
 confirmationDialog?.addEventListener("cancel", syncModalState);
 
-restoreBasketState();
-renderCategoryButtons();
-renderProducts();
-renderBasket();
+async function initialiseApp() {
+  await loadMenuData();
+  restoreBasketState();
+  renderCategoryButtons();
+  renderProducts();
+  renderBasket();
+}
+
+void initialiseApp();
